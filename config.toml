@@ -1,0 +1,14 @@
+# This is an example config file for running Aqumen apps
+# It uses TOML format - see https://toml.io/en/ for syntax
+
+config_name = "sample config"
+
+[data]
+db_type = "sqlite"
+sqlite_dir = ":memory:"  # use sqlite in memory or specify a folder for db files
+cache_dir = "C:/Temp/AqumenCache"
+
+[logging]
+level = "INFO" # https://docs.python.org/3/library/logging.html#logging-levels
+console = "NO" # should also write to stdout? yes or not
+log_dir = "C:/Temp/AqumenLog"

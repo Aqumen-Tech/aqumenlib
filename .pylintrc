@@ -1,0 +1,14 @@
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=120
+
+
+[CLASSES]
+# List of method names used to declare (i.e. assign) instance attributes.
+defining-attr-methods=__init__,
+                      __new__,
+                      setUp,
+                      asyncSetUp,
+                      __post_init__,
+                      model_post_init
+

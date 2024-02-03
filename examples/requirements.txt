@@ -1,0 +1,12 @@
+# end user tools used in examples
+numpy
+matplotlib
+plotly
+prettytable
+jupyter
+jupyterlab
+ipywidgets
+jupyterthemes
+jupytext
+ipydatagrid
+xlsxwriter

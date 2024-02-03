@@ -1,0 +1,86 @@
+SOFTWARE LICENCE AGREEMENT - AQUMEN SDK
+
+Effective starting: January 1, 2024
+
+This Licence Agreement ("Licence") is a legal agreement between you, the end-user, and AQUMEN TECHNOLOGY SOLUTIONS LTD ("Company"), the owner and provider of the AQUMEN SDK ("Software"). If you are agreeing to this Agreement not as an individual but on behalf of your company, government, or other entity for which you are acting (for example, as an employee or governmental official), then “you” means your entity and you are binding your entity to this Agreement. Company may modify this Agreement from time to time, subject to the terms of this agreement. 
+
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS LICENCE.
+
+1. GRANT OF LICENCE
+
+The Software is licensed, not sold. Upon your acceptance of the terms and conditions of this Licence, the Company grants you a non-exclusive, non-sublicensable and non-transferable licence to install, use, copy, inspect, modify and create derivative works of the Software during the applicable Licence Term for your own business purposes, in accordance with this Agreement, your applicable Scope of Use, the Documentation and all Laws.
+
+1.1. OWNERSHIP
+
+The Software is owned by the Company and is protected by copyright laws, international copyright treaties, and all other applicable intellectual property laws. The Company reserves all rights not expressly granted to you in this Licence. No ownership right is conveyed to you, irrespective of the use of terms such as “purchase” or “sale”.
+
+1.2. SCOPE OF USE
+
+The Company hereby grants you the right to install, copy, inspect, modify, create derivative works and make non-production use of the Software. For avoidance of doubt, these rights are enduring and do not require an Order. For other rights, see RESTRICTIONS.
+
+Production use of the Software is subject to authorized scope of use (as well as applicable fees and Licence Term) as specified in the applicable Order.
+
+Unless separately specified in the Order, "Production Use" refers to any use of the software  in a live operational environment that directly contributes to the revenue generation or supports the revenue-generating activities of the business. The term "Production Use" does not include the use of the software for development, testing, quality assurance, staging, education, training, or demonstration purposes.
+
+1.3. LICENCE TERM AND TERMINATION
+
+The Licence Term will be indicated in the Order (if and as applicable). The Licence Term will commence on the Order date (unless a different start date is designated in the Order). Unless earlier terminated in accordance with this Agreement, the right to use Software in production will expire at the end of the applicable Licence Term.
+
+This Agreement is effective as of the Effective Date and continues until expiration of all Licence Terms, unless earlier terminated as set forth herein.
+
+The Company may terminate this Licence at any time if you fail to comply with any term(s) of this Licence.
+
+You may choose to stop using the Software and terminate this Agreement (including all Orders) at any time for any reason upon written notice to the Company.
+
+Upon any expiration or termination of this Agreement, you must cease all production use of the Software.
+
+1.4. PAYMENT
+
+You will pay all fees in accordance with each Order, by the due dates and in the currency specified in the Order.
+
+1.5. RESTRICTIONS
+
+You may not sell, rent, lease or sublicence of the Software or any part thereof without an express permission of the Company.
+
+You must conspicuously display this Licence on each original or modified copy of the Software. If you receive the Software in original or modified form from a third party, the terms and conditions set forth in this Licence apply to your use of that work.
+
+2. SUPPORT AND MAINTENANCE
+
+Unless otherwise provided in a separate agreement between you and the Company, the Company has no obligation to provide support, maintenance, upgrades, modifications, or new releases of the Software under this Licence.
+
+3. DISCLAIMER OF WARRANTY
+
+The Software is provided "AS IS," without warranty of any kind. THE COMPANY DISCLAIMS ALL WARRANTIES, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+4. LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL THE COMPANY BE LIABLE FOR ANY DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR OTHER PECUNARY LOSS) ARISING OUT OF THE USE OR INABILITY TO USE THE SOFTWARE.
+
+5. GENERAL
+
+This Licence is governed by the laws of England. Any dispute, controversy or claim arising under this Licence shall be subject to the jurisdiction of the courts of England. If you have any questions concerning this Licence or need to contact the Company, please write to: solutions@aqumen.io
+
+5.1. ASSIGNMENT.
+
+You may not assign or transfer this Agreement without our prior written consent. 
+
+5.2. INDEPENDENT CONTRACTORS. 
+
+The parties are independent contractors. This Agreement will not be construed as constituting either party as a partner of the other or to create any other form of legal association that would give either party the express or implied right, power or authority to create any duty or obligation of the other party.
+
+6. DEFINITIONS. 
+
+Certain capitalized terms are defined in this Section 23, and others are defined contextually in this Agreement.
+
+“Documentation” means our standard documentation for the Software, provided with the Software or published online.
+
+“Laws” means all applicable local, state, federal and international laws, regulations and conventions, including those related to data privacy and data transfer, international communications and the exportation of technical or personal data.
+
+“Licence Term” means your permitted licence term for the Software, as set forth in an Order.
+
+“Order” means Aqumen's applicable ordering document or other purchase flow referencing this Agreement. Orders may include purchases of Software licence, Support and Maintenance, Additional Services, increased or upgraded Scope of Use or renewals.
+
+“Scope of Use” means your authorized scope of use for the Software as specified in the applicable Order.
+
+“Support and Maintenance” means Aqumen's support and maintenance services for the Software.
+

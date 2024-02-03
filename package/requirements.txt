@@ -1,0 +1,6 @@
+QuantLib
+pandas
+toml
+pydantic
+peewee
+pytest

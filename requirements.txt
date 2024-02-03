@@ -1,0 +1,13 @@
+# SDK requirements
+-r package/requirements.txt
+
+# requirements for examples
+-r examples/requirements.txt
+
+# dev tools
+hatchling
+pre-commit
+black
+black[jupyter]
+pylint
+coverage

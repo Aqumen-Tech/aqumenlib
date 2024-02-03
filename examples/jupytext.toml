@@ -1,0 +1,10 @@
+# Pair ipynb notebooks to py:percent text notebooks
+formats = "ipynb,py:percent"
+
+# You can also configure Jupytext in a pyproject.toml config file rather than jupytext.toml. In that case, a sample configuration would be:
+#
+# [tool.jupytext]
+# formats = "ipynb,py:percent"
+#
+# see documentation at https://jupytext.readthedocs.io/en/latest/config.html
+#
