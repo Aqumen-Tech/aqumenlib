@@ -34,7 +34,7 @@ from aqumenlib.curves.rate_curve import (
 )
 from aqumenlib.pricers.irs_pricer import InterestRateSwapPricer
 from aqumenlib.products.irs import InterestRateSwap
-from aqumen.data_model import quotes
+from aqumenlib.schema import quote_db
 
 
 # %% [markdown]
@@ -62,7 +62,8 @@ sonia_curve = add_bootstraped_discounting_rate_curve_to_market(
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
 )
 
-quotes.save_quotes(
+quote_db.db_init(":memory:")
+quote_db.save_quotes(
     instruments=[
         ("IRS-SOFR-1Y", 0.045),
         ("IRS-SOFR-5Y", 0.052),
@@ -75,7 +76,7 @@ sofr_curve = add_bootstraped_discounting_rate_curve_to_market(
     name="SOFR Curve",
     market=market,
     rate_index=indices.SOFR,
-    instruments=quotes.bind_instruments(
+    instruments=quote_db.bind_instruments(
         quote_date=pricing_date,
         instrument_types=[
             "IRS-SOFR-1Y",

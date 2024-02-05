@@ -1,7 +1,7 @@
 ﻿# Copyright AQUMEN TECHNOLOGY SOLUTIONS LTD 2023-2024
 
 import pathlib
-import aqumen.config as cfg
+import aqumenlib.config as cfg
 
 this_script_full_path = pathlib.Path(__file__).parent.resolve()
 

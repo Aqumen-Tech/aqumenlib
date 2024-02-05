@@ -12,11 +12,15 @@ class Config:
     """
 
     def __init__(self, filename=None):
+        """
+        Initialize a global config either from the runtime environment,
+        or from the supplied file.
+        """
+        self.config = {}
         config_file = os.getenv("AQUMEN_CONFIG") if not filename else filename
         if config_file is None:
-            #raise EnvironmentError("The AQUMEN_CONFIG environment variable is not set")
+            # raise EnvironmentError("The AQUMEN_CONFIG environment variable is not set")
             # use defaults
-            self.config = {}
             self.set("config_name", "default")
             self.set("data.db_type", "sqlite")
             self.set("data.sqlite_dir", ":memory:")
@@ -62,17 +66,17 @@ class Config:
             toml.dump(self.config, f)
 
 
-_the_config = None
+_GLOBAL_CONFIG = None
 
 
 def _get_singleton() -> Config:
     """
     Singleton for the main config.
     """
-    global _the_config
-    if _the_config is None:
-        _the_config = Config()
-    return _the_config
+    global _GLOBAL_CONFIG
+    if _GLOBAL_CONFIG is None:
+        _GLOBAL_CONFIG = Config()
+    return _GLOBAL_CONFIG
 
 
 def get(key: str, default: Any = None) -> Any:

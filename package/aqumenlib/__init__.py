@@ -1,8 +1,6 @@
 ﻿# Copyright AQUMEN TECHNOLOGY SOLUTIONS LTD 2023-2024
 
-import os
 import sys
-import logging
 
 import aqumenlib.config as cfg
 from aqumenlib.config_logs import init_logging

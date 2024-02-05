@@ -1,6 +1,6 @@
 ## AQUMEN is a financial analytics SDK for pricing and risk
 
-- "package" folder contains Aqumen's main Python library, which can be packaged as a pip wheel
+- "package" folder contains Aqumen's main Python library, which can be packaged as a wheel
 - "examples" folder contains some runnable examples.
 - To change setting for logging or databse management, one can provide a config file. The steps are:
     -  must be set 

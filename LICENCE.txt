@@ -1,1 +1,8 @@
-See package/LICENCE for full licence
+See the file package/LICENCE for full licence agreement text: https://github.com/Aqumen-Tech/aqumenlib/blob/main/package/LICENCE
+
+The executive summary is that you are free to use this software for non-revenue generating activities.
+
+This includes: education, trial, testing, demonstration, etc.
+
+To use this software in production, contact us at solutions@aqumen.io to obtain the licence.
+
