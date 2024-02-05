@@ -8,7 +8,7 @@
 """
 Hello-World like intro to AQumen SDK
 """
-from IPython.display import display
+
 from aqumenlib import (
     Date,
     Frequency,
@@ -35,6 +35,12 @@ from aqumenlib.curves.rate_curve import (
 from aqumenlib.pricers.irs_pricer import InterestRateSwapPricer
 from aqumenlib.products.irs import InterestRateSwap
 from aqumenlib.schema import quote_db
+
+try:
+    from IPython.display import display
+    do_display = display
+except ImportError:
+    do_display = print
 
 
 # %% [markdown]
@@ -129,7 +135,7 @@ print(f"Convexity: {ust_pricer.convexity()}")
 print(f"Z-Spread: {ust_pricer.zspread()}")
 print("Cashflows:")
 c = ust_pricer.calculate(Metric.CASHFLOWS)
-display(c.to_dataframe())
+do_display(c.to_dataframe())
 
 
 # %% [markdown]
@@ -137,7 +143,7 @@ display(c.to_dataframe())
 
 # %%
 risk_ladder = calculate_market_risk([ust_pricer])
-display(risk_ladder.to_dataframe())
+do_display(risk_ladder.to_dataframe())
 
 
 # %% [markdown]
@@ -184,11 +190,13 @@ print(f"{test_pricer.get_name()} Value: {test_pricer.value():,.2f}")
 print(f"{test_pricer.get_name()} Par coupon: {test_pricer.par_coupon():,.6f}")
 print(f"{test_pricer.get_name()} Par spread: {test_pricer.par_spread():,.6f}")
 
+do_display("Market sensitivities:")
 risk_ladder = calculate_market_risk([test_pricer], in_place_bumps=True)
-display(risk_ladder.to_dataframe())
+do_display(risk_ladder.to_dataframe())
 
 # %%
+do_display("Cash flows:")
 c = test_pricer.calculate(Metric.CASHFLOWS)
-display(c.to_dataframe())
+do_display(c.to_dataframe())
 
 # %%

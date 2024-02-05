@@ -39,7 +39,7 @@ def init_logging(pyconfig: dict):
     :param Config pyconfig:  configuration options parsed into python dict
     """
     if "logging" not in pyconfig:
-        print("No logging configured, logs are disabled")
+        print("No logging configured.")
         return
     cfg_dict = pyconfig["logging"]
 
