@@ -19,9 +19,9 @@ python -m venv "aqumen\venv"
 aqumen\venv\Scripts\activate.bat
 ```
 
-then install the Python package from aqm/python/ in this environment. From cmd terminal on Windows, you could use
+then install the Python modules from package folder in this environment. From cmd terminal on Windows, you could use
 ```
-cd aqumen\package\
+cd package
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -34,7 +34,7 @@ To make it easier to use this environment from command line, you could create ba
 @echo off
 call D:\aqumen\venv\Scripts\activate.bat
 set AQUMEN_CONFIG=D:\aqumen\aqm_config.toml
-cd D:\aqumen\aqumen\scripts
+cd D:\aqumen\aqumenlib\examples
 cmd
 ```
 
@@ -42,8 +42,36 @@ or on Linux something like this bash script:
 ```
 . /home/username/bin/venv310/bin/activate
 export AQUMEN_CONFIG=/home/username/dev/AqumenConfig/aqm_cfg_dev.toml
-cd /home/username/dev/aqumen/scripts
+cd /home/username/dev/aqumenlib/examples
 ```
+
+### Generating installation packages
+
+Hatchling is being used as Python packaging tool.
+
+To generate the installation packages, from  the package folder run this command:
+
+```
+python -m build
+```
+
+which should produce the following output:
+```
+* Creating virtualenv isolated environment...
+* Installing packages in isolated environment... (hatchling)
+* Getting build dependencies for sdist...
+* Building sdist...
+* Building wheel from sdist
+* Creating virtualenv isolated environment...
+* Installing packages in isolated environment... (hatchling)
+* Getting build dependencies for wheel...
+* Building wheel...
+Successfully built aqumenlib-0.1.0.tar.gz and aqumenlib-0.1.0-py3-none-any.whl
+```
+
+The tar.gz file is a source distribution whereas the .whl file is a built distribution. 
+Newer pip versions preferentially install built distributions, but will fall back to source distributions if needed. 
+AQumen SDK package is compatible with Python on any platform so only one built distribution is needed.
 
 ### Setting up development tools
 

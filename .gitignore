@@ -1,3 +1,5 @@
+# packaging
+package/dist
 
 # Compiled Python bytecode
 *.py[cod]
