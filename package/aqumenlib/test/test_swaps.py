@@ -71,9 +71,9 @@ def make_ois_simple_pricer():
         fixed_coupon=0.07,
         fixed_day_count=DayCount.ACT365F,
         payment_calendar=Calendar(ql_calendar_id="UnitedKingdom"),
-        period_adjust=BusinessDayAdjustment.FOLLOWING,
-        payment_adjust=BusinessDayAdjustment.FOLLOWING,
-        maturity_adjust=BusinessDayAdjustment.FOLLOWING,
+        period_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
+        payment_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
+        maturity_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
     )
     test_pricer = InterestRateSwapPricer(
         swap=ois,
@@ -118,7 +118,7 @@ def test_ois_simple():
 
 def test_ois_roundtrip():
     """
-    Test simple OIS pricer
+    Test that on-market OIS swap prices to par
     """
     test_pricer = make_ois_simple_pricer()
     test_pricer.swap.fixed_coupon = 0.05
@@ -126,7 +126,7 @@ def test_ois_roundtrip():
 
     value = test_pricer.calculate(Metric.VALUE)[0]
     assert value[0] == Currency.GBP
-    assert value[1] == pytest.approx(0, abs=1.01)
+    assert value[1] == pytest.approx(0, abs=1e-5)
     assert test_pricer.calculate(Metric.REPORTING_VALUE) == pytest.approx(0, abs=1.01)
     assert test_pricer.par_coupon() == pytest.approx(0.05, abs=1e-5)
     assert test_pricer.par_spread() == pytest.approx(0.0, abs=1e-5)

@@ -121,7 +121,7 @@ class BootstrappedRateCurveQL(Curve, pydantic.BaseModel):
         qdate = market.pricing_date.to_ql()
         dc = ql.Actual365Fixed()
         ql_func = getattr(ql, self.interpolator.name)
-        bstrap = ql.IterativeBootstrap(1e-9)
+        bstrap = ql.IterativeBootstrap()
         yield_curve = ql_func(qdate, ql_instruments, dc, bstrap)
         yield_curve.enableExtrapolation()
         self._ql_curve = yield_curve
