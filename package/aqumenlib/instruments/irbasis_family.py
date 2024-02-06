@@ -64,7 +64,7 @@ class IRBasisSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         quote_handle: ql.RelinkableQuoteHandle,
         term: Term,
         discounting_id: Optional[str] = None,
-        target_index: Optional[Index] = None,
+        target_curve: Optional["Curve"] = None,
     ):
         """
         Create QuantLib represenation of this instrument
@@ -76,11 +76,11 @@ class IRBasisSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         if discounting_id is not None:
             df_curve = market.get_discounting_curve(discounting_id)
             df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
-        if target_index is None:
+        if target_curve is None or target_curve.target_index is None:
             raise RuntimeError("Basis instrument used without target index being known.")
 
         if not self.index1.is_overnight() and not self.index2.is_overnight():
-            build_index1 = target_index == self.index1
+            build_index1 = target_curve.target_index == self.index1
             if build_index1:
                 ql_index1 = self.index1.get_ql_index()
                 ql_index2 = market_util.get_modeled_ql_rate_index(market, self.index2)
@@ -102,7 +102,7 @@ class IRBasisSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         else:
             on_index = self.index1 if self.index1.is_overnight() else self.index2
             ib_index = self.index2 if self.index1.is_overnight() else self.index1
-            if on_index.get_name() == target_index:
+            if on_index.get_name() == target_curve.target_index:
                 raise NotImplementedError(
                     "Overnight-IBOR basis instrument does not yet support calibration of O/N side."
                 )

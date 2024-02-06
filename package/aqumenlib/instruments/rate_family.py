@@ -22,7 +22,7 @@ class RateInstrumentFamily(InstrumentFamily, pydantic.BaseModel):
         quote_handle: "ql.RelinkableQuoteHandle",
         term: "Term",
         discounting_id: Optional[str] = None,
-        target_index: Optional[Index] = None,
+        target_curve: Optional["Curve"] = None,
     ):
         """
         Create QuantLib represenation of this instrument

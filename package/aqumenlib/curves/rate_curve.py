@@ -115,7 +115,7 @@ class BootstrappedRateCurveQL(Curve, pydantic.BaseModel):
                 quote_handle=inst.get_quote_hanlde(),
                 term=inst.inst_type.specifics,
                 discounting_id=self.discounting_id,
-                target_index=self.target_index,
+                target_curve=self,
             )
             ql_instruments.push_back(ql_helper)
         qdate = market.pricing_date.to_ql()
@@ -213,4 +213,32 @@ def add_bootstraped_rate_curve_to_market(
     curve.prerequisite_curve_ids = list(set(curve.prerequisite_curve_ids))
     curve.build(market)
     market.add_index_curve(rate_index, curve)
+    return curve
+
+
+def add_bootstraped_xccy_discounting_curve_to_market(
+    name: str,
+    market: MarketView,
+    instruments: List[Instrument],
+    target_currency: Currency,
+    target_discounting_id: str,
+    interpolator: RateInterpolationType = RateInterpolationType.PiecewiseLogLinearDiscount,
+) -> Curve:
+    """
+    Bootstraps a discounting curve and adds it to market.
+    The curve is built using cross-currency instruments, therefore projected
+    curve is assumed to exist for target_index.
+    """
+    for inst in instruments:
+        market.add_instrument(inst)
+    inst_names = [i.name for i in instruments]
+    #
+    curve = BootstrappedRateCurveQL(
+        name=name,
+        currency=target_currency,
+        instrument_ids=inst_names,
+        interpolator=interpolator,
+    )
+    curve.build(market)
+    market.add_discount_curve(target_discounting_id, curve)
     return curve

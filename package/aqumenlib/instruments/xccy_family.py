@@ -79,12 +79,12 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         quote_handle: ql.RelinkableQuoteHandle,
         term: Term,
         discounting_id: Optional[str],
-        target_index: Optional[Index] = None,
+        target_curve: Optional["Curve"] = None,
     ):
         """
         Create QuantLib represenation of this instrument
         """
-        base_ccy_is_collateral = self.index_quote.currency == target_index.currency
+        base_ccy_is_collateral = self.index_quote.currency == target_curve.currency
         if discounting_id is None:
             df_ccy = self.index_base.currency if base_ccy_is_collateral else self.index_quote.currency
             discounting_id = df_ccy.name
@@ -92,6 +92,7 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         df_curve = market.get_discounting_curve(discounting_id)
         df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
         ql_index_base = market_util.get_modeled_ql_rate_index(market, self.index_base)
+        ql_index_quote = market_util.get_modeled_ql_rate_index(market, self.index_quote)
         if self.rebalance_notionals:
             return ql.MtMCrossCurrencyBasisSwapRateHelper(
                 quote_handle,
@@ -100,8 +101,8 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
                 self.calendar.to_ql(),  # Calendar calendar,
                 self.roll_adjust.to_ql(),  # BusinessDayConvention convention,
                 self.end_of_month_flag,  # bool endOfMonth,
-                self.index_base.get_ql_index(),  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
-                self.index_quote.get_ql_index(),  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
+                ql_index_base,  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
+                ql_index_quote,  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
                 df_handle,  # YieldTermStructureHandle collateralCurve,
                 base_ccy_is_collateral,  # bool isFxBaseCurrencyCollateralCurrency,
                 self.spread_on_base_leg,  # bool isBasisOnFxBaseCurrencyLeg

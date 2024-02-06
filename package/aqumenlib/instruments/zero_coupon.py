@@ -59,7 +59,7 @@ class ZeroCouponBondFamily(RateInstrumentFamily, pydantic.BaseModel):
         quote_handle: ql.RelinkableQuoteHandle,
         term: Term,
         discounting_id: Optional[str] = None,
-        target_index: Optional[Index] = None,
+        target_curve: Optional["Curve"] = None,
     ):
         value_date = market.pricing_date.to_ql()
         zc_bond = ql.ZeroCouponBond(
