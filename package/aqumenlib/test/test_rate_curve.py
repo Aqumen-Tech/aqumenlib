@@ -61,7 +61,7 @@ def create_dual_curve_discounting_view() -> MarketView:
     Create a market view for LIBOR/OIS dual curve model.
     """
     market = MarketView(name="test model", pricing_date=Date.from_isoint(20230810))
-    add_bootstraped_discounting_curve_to_market(
+    curve_estr = add_bootstraped_discounting_curve_to_market(
         name="EUR ESTR DF Curve",
         market=market,
         instruments=[
@@ -71,7 +71,7 @@ def create_dual_curve_discounting_view() -> MarketView:
         currency=Currency.EUR,
         interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
     )
-    add_bootstraped_rate_curve_to_market(
+    curve_euribor3m = add_bootstraped_rate_curve_to_market(
         name="EURIBOR3M Curve",
         market=market,
         instruments=[
@@ -80,7 +80,7 @@ def create_dual_curve_discounting_view() -> MarketView:
         rate_index=indices.EURIBOR3M,
         interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
     )
-    add_bootstraped_rate_curve_to_market(
+    curve_euribor1m = add_bootstraped_rate_curve_to_market(
         name="EURIBOR1M Curve",
         market=market,
         instruments=[
@@ -89,6 +89,8 @@ def create_dual_curve_discounting_view() -> MarketView:
         rate_index=indices.EURIBOR1M,
         interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
     )
+    # for c in [curve_estr, curve_euribor3m, curve_euribor1m]:
+    #     print(f"{c.get_name()}  {c.zero_rate(Date.from_isoint(20241128))}")
     return market
 
 

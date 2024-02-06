@@ -174,6 +174,7 @@ def add_bootstraped_discounting_rate_curve_to_market(
         currency=rate_index.get_currency(),
         instrument_ids=inst_names,
         interpolator=interpolator,
+        target_index=rate_index,
     )
     curve.build(market)
     market.add_discount_curve(rate_index.get_currency(), curve)

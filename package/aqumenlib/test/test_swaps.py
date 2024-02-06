@@ -4,7 +4,6 @@ Tests for IR swaps
 """
 from typing import List
 import pytest
-import QuantLib as ql
 
 from aqumenlib import (
     Date,

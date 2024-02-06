@@ -13,6 +13,7 @@ from aqumenlib import (
     Frequency,
     RateIndex,
     MarketView,
+    market_util,
 )
 from aqumenlib.calendar import Calendar
 from aqumenlib.exception import AqumenException
@@ -46,8 +47,8 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
     name: str
     index_base: RateIndex
     index_quote: RateIndex
-    frequency: Frequency = Frequency.QUARTERLY
     settlement_delay: int
+    frequency: Frequency = Frequency.QUARTERLY
     roll_adjust: BusinessDayAdjustment = BusinessDayAdjustment.MODIFIEDFOLLOWING
     calendar: Optional[Calendar] = None
     end_of_month_flag: bool = False
@@ -83,27 +84,15 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         """
         Create QuantLib represenation of this instrument
         """
+        base_ccy_is_collateral = self.index_quote.currency == target_index.currency
         if discounting_id is None:
-            raise AqumenException("Discounting curve ID must be provided for collateral currency")
+            df_ccy = self.index_base.currency if base_ccy_is_collateral else self.index_quote.currency
+            discounting_id = df_ccy.name
         df_handle = ql.YieldTermStructureHandle()
         df_curve = market.get_discounting_curve(discounting_id)
         df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
-        base_ccy_is_collateral = self.index_base.currency == df_curve.currency
+        ql_index_base = market_util.get_modeled_ql_rate_index(market, self.index_base)
         if self.rebalance_notionals:
-            return ql.ConstNotionalCrossCurrencyBasisSwapRateHelper(
-                quote_handle,
-                term.to_ql(),
-                self.settlement_delay,  # Natural fixingDays,
-                self.calendar.to_ql(),  # Calendar calendar,
-                self.roll_adjust.to_ql(),  # BusinessDayConvention convention,
-                self.end_of_month_flag,  # bool endOfMonth,
-                self.index_base.get_ql_index(),  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
-                self.index_quote.get_ql_index(),  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
-                df_handle,  # YieldTermStructureHandle collateralCurve,
-                base_ccy_is_collateral,  # bool isFxBaseCurrencyCollateralCurrency,
-                self.spread_on_base_leg,  # bool isBasisOnFxBaseCurrencyLeg
-            )
-        else:
             return ql.MtMCrossCurrencyBasisSwapRateHelper(
                 quote_handle,
                 term.to_ql(),
@@ -117,4 +106,18 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
                 base_ccy_is_collateral,  # bool isFxBaseCurrencyCollateralCurrency,
                 self.spread_on_base_leg,  # bool isBasisOnFxBaseCurrencyLeg
                 self.rebalance_on_base_leg,  # bool isFxBaseCurrencyLegResettable
+            )
+        else:
+            return ql.ConstNotionalCrossCurrencyBasisSwapRateHelper(
+                quote_handle,
+                term.to_ql(),
+                self.settlement_delay,  # Natural fixingDays,
+                self.calendar.to_ql(),  # Calendar calendar,
+                self.roll_adjust.to_ql(),  # BusinessDayConvention convention,
+                self.end_of_month_flag,  # bool endOfMonth,
+                self.index_base.get_ql_index(),  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
+                self.index_quote.get_ql_index(),  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
+                df_handle,  # YieldTermStructureHandle collateralCurve,
+                base_ccy_is_collateral,  # bool isFxBaseCurrencyCollateralCurrency,
+                self.spread_on_base_leg,  # bool isBasisOnFxBaseCurrencyLeg
             )
