@@ -139,7 +139,7 @@ def test_eurxaud_csa_model():
     FX instruments such as FX or cross-currency swaps.
     """
     # set do_print to True to display results in stdout
-    do_print = True
+    do_print = False
     # test cases setting all 5 rates, and bools for spread on dom leg, rebalance
     test_table = [
         [0.05, 0.05, 0.05, 0.05, 0.001, False, False],

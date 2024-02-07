@@ -1,15 +1,56 @@
-## AQUMEN is a financial analytics SDK for pricing and risk
+## AQUMEN is a financial analytics framework for pricing and risk
 
-- "package" folder contains Aqumen's main Python library, which can be packaged as a wheel
-- "examples" folder contains some runnable examples.
-- To change setting for logging or databse management, one can provide a config file. The steps are:
-    -  must be set 
-    - modify example config in config.toml and save as a new file
-    - set environment variable AQUMEN_CONFIG and point it to this file
-        - e.g. on Windows ```set AQUMEN_CONFIG=C:\aqumen\config.toml```
-        - or on Linux ```export AQUMEN_CONFIG=$HOME\aqumen\config.toml```
+### Motivation
+
+AQUMEN is intended to make it easy to integrate financial analytics with other systems and solutions.
+The typical user is a developer who need pricing and risk engine for derivatives and fixed income
+instruments, but does not want to spend a great deal of time learning the low level
+financial framework. 
+
+Some of key features that help in that goal are:
+- Serialization of all objects so that pricers or models can be saved as JSON objects and reconstructed elsewhere
+- Built-in instrument symbology and a data model that naturally maps to that of market data vendors
+- Built-in standard market conventions for a variety of commonly traded markets
+- Support for concepts like trade, product, security, position, pricer, etc - which typically exist in systems but not in quant libraries
+- Ease of setting up CSA-differentiated discounting models
+- Instrument classification and convenient one-line calculators for risks (both sensitivy and scenario driven)
+
+
+### Installation
+
+Typical steps to install AQUMEN SDK are:
+
+ - install Python and create an environment using Python 3.11 or later
+ - pip install prerequisites from provided requirements.txt
+ - pip install provided Python wheel file
+ - (optional) create a config file - minimal example is below
+ - (optional) set up an environment variable AQUMEN_CONFIG to point to this config file 
+ - (optional) pip install examples/requirements.txt to run examples
+ 
+### Minimal config example
+
+Configuration can be provided using TOML file format. See https://toml.io/ for syntax.
+Note that config file is optional. By default in-memory SQLite will be used and logging will be disabled.
+
+```
+config_name = "sample config"
+
+[data]
+db_type = "sqlite"
+sqlite_dir = ":memory:" # use sqlite in memory or specify a folder for db files
+
+[logging]
+level = "INFO" # https://docs.python.org/3/library/logging.html#logging-levels
+console = "NO" # should also write to stdout? yes or not
+log_dir = "C:/Temp/AqumenLog" 
+```
 
 ## Developing for Aqumen 
+
+At top level, there are two main folders 
+- "package" folder contains Aqumen's main Python library, which can be packaged as a wheel
+- "examples" folder contains some runnable examples.
+
 
 ### Setting up Python environment
 
