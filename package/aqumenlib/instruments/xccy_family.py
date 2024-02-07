@@ -93,6 +93,8 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
         ql_index_base = market_util.get_modeled_ql_rate_index(market, self.index_base)
         ql_index_quote = market_util.get_modeled_ql_rate_index(market, self.index_quote)
+        if self.calendar is None:
+            self.calendar = Calendar(ql_calendar_id="NullCalendar")
         if self.rebalance_notionals:
             return ql.MtMCrossCurrencyBasisSwapRateHelper(
                 quote_handle,

@@ -7,8 +7,8 @@ from aqumenlib.config_logs import init_logging
 
 if not any("pytest" in arg for arg in sys.argv):
     init_logging(cfg.as_dict())
-else:
-    print("Detected pytest. Disabling init.")
+# else:
+#     print("Detected pytest. Disabling init.")
 
 from aqumenlib.enums import (
     QuoteConvention,

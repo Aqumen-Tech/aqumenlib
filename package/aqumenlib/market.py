@@ -165,14 +165,27 @@ class MarketView(pydantic.BaseModel):
                 return triangulated_rate
         raise KeyError(f"Market does not contain exchange rate information for {ccy1.name}{ccy2.name}")
 
-    def get_fwd_FX(self, fwd_date: Date, ccy1: Currency, ccy2: Currency) -> float:  # pylint: disable=invalid-name
+    def get_fwd_FX(
+        self,
+        fwd_date: Date,
+        ccy1: Currency,
+        ccy2: Currency,
+        csa1: Optional[Currency | str] = None,
+        csa2: Optional[Currency | str] = None,
+    ) -> float:  # pylint: disable=invalid-name
         """
         Returns forward FX rate, performing triangulation or inversion if necessary.
+
+        If only currencies are provided, default discount curves for those currencies are used.
+        If CSA-differentiated discounting is necessary, csa1 and csa2 arguments can be
+        used to select appropriate discount curves for projecting forward FX.
         """
         if ccy1 == ccy2:
             return 1.0
-        df1 = self.get_discounting_curve(ccy1).discount_factor(fwd_date)
-        df2 = self.get_discounting_curve(ccy2).discount_factor(fwd_date)
+        dfc1 = csa1 if csa1 is not None else ccy1
+        dfc2 = csa2 if csa2 is not None else ccy2
+        df1 = self.get_discounting_curve(dfc1).discount_factor(fwd_date)
+        df2 = self.get_discounting_curve(dfc2).discount_factor(fwd_date)
         return self.get_spot_FX(ccy1, ccy2) * df1 / df2
 
     def get_curve_by_name(self, curve_name: str) -> Optional[Curve]:
