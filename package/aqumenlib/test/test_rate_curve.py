@@ -97,6 +97,15 @@ def create_dual_curve_discounting_view() -> MarketView:
 def test_dual_curve_discounting():
     """
     Test curve building for LIBOR/OIS dual curve model.
+
+    The setup here is to have EURIBOR3M swap at 1Y point quoted at 10%,
+    which is used to build a flat projected curve for EURIBOR3M.
+    Discounting is with ESTR curve which sits at very low rate for 10M
+    then jumps up to very high rate.
+    EURIBOR3M swap fixed leg has one cash flow discounted at high rate,
+    while float leg has 4 cash flows first 3 of which are discounted at low rate.
+    Therefore we expect EURIBOR3M curve to sit lower than the quoted 10% coupon rate,
+    as less discounting is applied to it.
     """
     market = create_dual_curve_discounting_view()
     df_curve = market.get_discounting_curve(Currency.EUR)

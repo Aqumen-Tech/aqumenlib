@@ -116,8 +116,8 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
                 self.calendar.to_ql(),  # Calendar calendar,
                 self.roll_adjust.to_ql(),  # BusinessDayConvention convention,
                 self.end_of_month_flag,  # bool endOfMonth,
-                self.index_base.get_ql_index(),  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
-                self.index_quote.get_ql_index(),  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
+                ql_index_base,  # ext::shared_ptr< IborIndex > baseCurrencyIndex,
+                ql_index_quote,  # ext::shared_ptr< IborIndex > quoteCurrencyIndex,
                 df_handle,  # YieldTermStructureHandle collateralCurve,
                 base_ccy_is_collateral,  # bool isFxBaseCurrencyCollateralCurrency,
                 self.spread_on_base_leg,  # bool isBasisOnFxBaseCurrencyLeg
