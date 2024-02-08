@@ -38,6 +38,7 @@ from aqumenlib.schema import quote_db
 
 try:
     from IPython.display import display
+
     do_display = display
 except ImportError:
     do_display = print
@@ -190,12 +191,12 @@ print(f"{test_pricer.get_name()} Value: {test_pricer.value():,.2f}")
 print(f"{test_pricer.get_name()} Par coupon: {test_pricer.par_coupon():,.6f}")
 print(f"{test_pricer.get_name()} Par spread: {test_pricer.par_spread():,.6f}")
 
-do_display("Market sensitivities:")
+print("Market sensitivities:")
 risk_ladder = calculate_market_risk([test_pricer], in_place_bumps=True)
 do_display(risk_ladder.to_dataframe())
 
 # %%
-do_display("Cash flows:")
+print("Cash flows:")
 c = test_pricer.calculate(Metric.CASHFLOWS)
 do_display(c.to_dataframe())
 

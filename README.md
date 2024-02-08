@@ -7,7 +7,11 @@ The typical user is a developer who need pricing and risk engine for derivatives
 instruments, but does not want to spend a great deal of time learning the low level
 financial framework. 
 
-Some of key features that help in that goal are:
+As such, the focus is on ease of use and ease of intergration. Under the hood, QuantLib is used
+extensively for the underlying mathematical underpinning of the pricing models.
+
+Some of key features of the framework are:
+
 - Serialization of all objects so that pricers or models can be saved as JSON objects and reconstructed elsewhere
 - Built-in instrument symbology and a data model that naturally maps to that of market data vendors
 - Built-in standard market conventions for a variety of commonly traded markets
