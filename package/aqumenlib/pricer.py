@@ -85,3 +85,10 @@ class Pricer(NamedObject):  # TODO pydantic
         new_pricer = copy.copy(self)
         new_pricer.set_market(market_model)
         return new_pricer
+
+    def reset(self):
+        """
+        Re-initializes the pricer. Use this if you changed trader parameters
+        within existing pricers.
+        """
+        self.set_market(self.get_market())

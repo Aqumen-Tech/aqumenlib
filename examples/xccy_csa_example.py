@@ -64,15 +64,18 @@ except ImportError:
 # So let us create a market view where purely domestic instruments are used to build discount and forward curves for EUR and AUD.
 
 # %%
-pricing_date = Date.from_any("2023-11-17")
+pricing_date = Date.from_any("2024-02-07")
 market = MarketView(name="EURxAUD model", pricing_date=pricing_date)
 
 curve_estr = add_bootstraped_discounting_rate_curve_to_market(
     name="ESTR Curve",
     market=market,
     instruments=[
-        create_instrument("IRS-ESTR-1Y", 0.05),
-        create_instrument("IRS-ESTR-10Y", 0.05),
+        create_instrument("IRS-ESTR-1Y", 0.0293),
+        create_instrument("IRS-ESTR-3Y", 0.0272),
+        create_instrument("IRS-ESTR-5Y", 0.0260),
+        create_instrument("IRS-ESTR-10Y", 0.0269),
+        create_instrument("IRS-ESTR-30Y", 0.0265),
     ],
     rate_index=indices.ESTR,
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
@@ -81,8 +84,11 @@ curve_euribor3m = add_bootstraped_rate_curve_to_market(
     name="EURIBOR3M Curve",
     market=market,
     instruments=[
-        create_instrument("IRS-EURIBOR3M-1Y", 0.055),
-        create_instrument("IRS-EURIBOR3M-10Y", 0.055),
+        create_instrument("IRS-EURIBOR3M-1Y", 0.0298),
+        create_instrument("IRS-EURIBOR3M-3Y", 0.0279),
+        create_instrument("IRS-EURIBOR3M-5Y", 0.0265),
+        create_instrument("IRS-EURIBOR3M-10Y", 0.028),
+        create_instrument("IRS-EURIBOR3M-30Y", 0.028),
     ],
     rate_index=indices.EURIBOR3M,
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
@@ -91,8 +97,11 @@ curve_aonia = add_bootstraped_discounting_rate_curve_to_market(
     name="AONIA Curve",
     market=market,
     instruments=[
-        create_instrument("IRS-AONIA-1Y", 0.06),
-        create_instrument("IRS-AONIA-10Y", 0.06),
+        create_instrument("IRS-AONIA-1Y", 0.0419),
+        create_instrument("IRS-AONIA-3Y", 0.0376),
+        create_instrument("IRS-AONIA-5Y", 0.0378),
+        create_instrument("IRS-AONIA-10Y", 0.041),
+        create_instrument("IRS-AONIA-30Y", 0.041),
     ],
     rate_index=indices.AONIA,
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
@@ -101,8 +110,11 @@ curve_bbsw3m = add_bootstraped_rate_curve_to_market(
     name="BBSW3M Curve",
     market=market,
     instruments=[
-        create_instrument("IRS-BBSW3M-1Y", 0.07),
-        create_instrument("IRS-BBSW3M-10Y", 0.07),
+        create_instrument("IRS-BBSW3M-1Y", 0.040),
+        create_instrument("IRS-BBSW3M-3Y", 0.039),
+        create_instrument("IRS-BBSW3M-5Y", 0.041),
+        create_instrument("IRS-BBSW3M-10Y", 0.043),
+        create_instrument("IRS-BBSW3M-30Y", 0.043),
     ],
     rate_index=indices.BBSW3M,
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
@@ -138,9 +150,13 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
     name="AUD XCCY Curve",
     market=market,
     instruments=[
-        create_instrument((fxfam, "6M"), 0.005),
-        create_instrument((xfam, "1Y"), 0.001),
-        create_instrument((xfam, "10Y"), 0.001),
+        create_instrument((fxfam, "1M"), 0.0005),
+        create_instrument((fxfam, "3M"), 0.0017),
+        create_instrument((fxfam, "6M"), 0.0050),
+        create_instrument((fxfam, "1y"), 0.0150),
+        create_instrument((xfam, "3Y"), 0.001),
+        create_instrument((xfam, "10Y"), 0.002),
+        create_instrument((xfam, "30Y"), 0.003),
     ],
     target_currency=Currency.AUD,
     target_discounting_id="AUDxEUR",
@@ -156,9 +172,10 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
 # %%
 rates_for_df = []
 pd_e = pricing_date.to_excel()
-for i in range(1, 15):
+for i in [1, 1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
     df_dict = {}
-    df_dict["Date"] = str(Date.from_excel(pd_e + i * 61))
+    d = Date.from_excel(pd_e + i * 30)
+    df_dict["Date"] = str(d)
     for c in [
         curve_estr,
         curve_euribor3m,
@@ -166,7 +183,7 @@ for i in range(1, 15):
         curve_bbsw3m,
         curve_aud_x,
     ]:
-        df_dict[c.get_name()] = f"{100* c.zero_rate(Date.from_isoint(20241128)):.2f}"
+        df_dict[c.get_name()] = f"{100* c.zero_rate(d):.2f}"
     rates_for_df.append(df_dict)
 
 import pandas as pd
@@ -183,17 +200,17 @@ for k, v in market.get_instrument_map().items():
 # %% [markdown]
 # ## Swap pricing - DOMESTIC
 #
-# Let us first price a swap from the point of view of domestic investor in AUD market:
+# Let us first price an on-market swap from the point of view of domestic investor in AUD market:
 
 # %%
 
 ois = InterestRateSwap(
     name="test_ois",
     index=indices.AONIA,
-    effective=Date.from_any("2023-11-19"),
-    maturity=Date.from_any("2033-11-19"),
+    effective=Date.from_any("2024-02-09"),
+    maturity=Date.from_any("2034-02-09"),
     frequency=Frequency.ANNUAL,
-    fixed_coupon=0.05,
+    fixed_coupon=0.041,
     fixed_day_count=DayCount.ACT365F,
     payment_calendar=Calendar(ql_calendar_id="Australia"),
     period_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
@@ -203,7 +220,7 @@ ois = InterestRateSwap(
 dom_pricer = InterestRateSwapPricer(
     swap=ois,
     market=market,
-    trade_info=TradeInfo(trade_id="AUD dom pricer", amount=1_000_000, is_receive=False),
+    trade_info=TradeInfo(trade_id="AUD domestic pricer", amount=1_000_000, is_receive=False),
 )
 
 print(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
@@ -212,7 +229,8 @@ print(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
 # %% [markdown]
 # ## SWAP PRICING - FOREIGN
 #
-# Now let us value the same swap from the point of Europe-based investor who funds his trades from EUR:
+# Now let us value the same swap from the point of Europe-based investor who funds his trades from EUR.
+# Because the fixed and the floating legs are perfectly balanced, one expects to find that even with a different discount curve the price remains roughly zero.
 
 # %%
 
@@ -225,6 +243,19 @@ forn_pricer = InterestRateSwapPricer(
 print(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
 print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
 
+# %% [markdown]
+# ## SWAP PRICING - OFF MARKET
+#
+# Now let us value a pricer that is significantly off-market. We will set fixed coupon rate to 1bps to get a better feel for the effect of changing the discount curve on valuation of fixed income instruments.
+
 # %%
+ois.fixed_coupon = 0.0001
+dom_pricer.reset()
+forn_pricer.reset()
+
+print(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
+print(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
+print(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
+print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
 
 # %%
