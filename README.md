@@ -16,6 +16,7 @@ Some of key features of the framework are:
 - Built-in instrument symbology and a data model that naturally maps to that of market data vendors
 - Built-in standard market conventions for a variety of commonly traded markets
 - Support for concepts like trade, product, security, position, pricer, etc - which typically exist in systems but not in quant libraries
+- Blotter-friendly pricers wtih universally consistent result types
 - Ease of setting up CSA-differentiated discounting models
 - Instrument classification and convenient one-line calculators for risks (both sensitivy and scenario driven)
 

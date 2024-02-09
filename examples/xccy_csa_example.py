@@ -22,24 +22,27 @@ from aqumenlib import (
     Date,
     Frequency,
     BusinessDayAdjustment,
-    MarketView,
     QuoteConvention,
     QuoteBumpType,
     RateInterpolationType,
     RiskType,
     Metric,
     TradeInfo,
+    Currency,
+    MarketView,
 )
 from aqumenlib import indices
 from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
 from aqumenlib.pricers.bond_pricer import BondPricer
 from aqumenlib.instrument import create_instrument
-from aqumenlib.products.bond import Bond
-from aqumenlib.risk import calculate_market_risk
-from aqumenlib.scenario import create_adjust_quotes_scenario
+from aqumenlib.instruments.fxswap_family import FXSwapFamily
+from aqumenlib.instruments.xccy_family import CrossCurrencySwapFamily
+from aqumenlib import indices
 from aqumenlib.curves.rate_curve import (
     add_bootstraped_discounting_rate_curve_to_market,
+    add_bootstraped_rate_curve_to_market,
+    add_bootstraped_xccy_discounting_curve_to_market,
 )
 from aqumenlib.pricers.irs_pricer import InterestRateSwapPricer
 from aqumenlib.products.irs import InterestRateSwap
@@ -88,8 +91,8 @@ curve_aonia = add_bootstraped_discounting_rate_curve_to_market(
     name="AONIA Curve",
     market=market,
     instruments=[
-        create_instrument("IRS-AONIA-1Y", 0.066),
-        create_instrument("IRS-AONIA-10Y", 0.065),
+        create_instrument("IRS-AONIA-1Y", 0.06),
+        create_instrument("IRS-AONIA-10Y", 0.06),
     ],
     rate_index=indices.AONIA,
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
@@ -106,9 +109,70 @@ curve_bbsw3m = add_bootstraped_rate_curve_to_market(
 )
 
 
+# %% [markdown]
+# ## Modeling FX-driven AUD discounting curve
+#
+# As discussed above, trades funded by raising money in EUR/AUD FX markets and collaterizing in EUR should be valued with an effective AUD discounting curve derived off the EUR rates curves and FX instruments. Here we build such a curve using FX swaps and cross currency swaps:
+
 # %%
-d = Date.from_any(20251126)
-print(f"SOFR spot rate at {d} is {sofr_curve.zero_rate(d)}")
+market.add_spot_FX(Currency.EUR, Currency.AUD, 1.7)
+
+fxfam = FXSwapFamily(
+    name="EURAUD FX swap",
+    currency_base=Currency.EUR,
+    currency_quote=Currency.AUD,
+    settlement_delay=2,
+    calendar=Calendar(ql_calendar_id="TARGET"),
+)
+xfam = CrossCurrencySwapFamily(
+    name="EURAUD XCCY swap",
+    index_base=indices.EURIBOR3M,
+    index_quote=indices.BBSW3M,
+    settlement_delay=2,
+    calendar=Calendar(ql_calendar_id="TARGET"),
+    rebalance_notionals=True,
+    spread_on_base_leg=True,
+)
+
+curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
+    name="AUD XCCY Curve",
+    market=market,
+    instruments=[
+        create_instrument((fxfam, "6M"), 0.005),
+        create_instrument((xfam, "1Y"), 0.001),
+        create_instrument((xfam, "10Y"), 0.001),
+    ],
+    target_currency=Currency.AUD,
+    target_discounting_id="AUDxEUR",
+    interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
+)
+
+
+# %% [markdown]
+# ## Checking the resulting curves
+#
+# Let us print the zero rates on all the resulting curves:
+
+# %%
+rates_for_df = []
+pd_e = pricing_date.to_excel()
+for i in range(1, 15):
+    df_dict = {}
+    df_dict["Date"] = str(Date.from_excel(pd_e + i * 61))
+    for c in [
+        curve_estr,
+        curve_euribor3m,
+        curve_aonia,
+        curve_bbsw3m,
+        curve_aud_x,
+    ]:
+        df_dict[c.get_name()] = f"{100* c.zero_rate(Date.from_isoint(20241128)):.2f}"
+    rates_for_df.append(df_dict)
+
+import pandas as pd
+
+df = pd.DataFrame(rates_for_df)
+display(df)
 
 
 # %%
@@ -117,29 +181,50 @@ for k, v in market.get_instrument_map().items():
     print(v.short_str())
 
 # %% [markdown]
-# ## Swap pricing
+# ## Swap pricing - DOMESTIC
+#
+# Let us first price a swap from the point of view of domestic investor in AUD market:
 
 # %%
 
 ois = InterestRateSwap(
     name="test_ois",
-    index=indices.SONIA,
-    effective=Date.from_any("2023-11-18"),
-    maturity=Date.from_any("2028-11-18"),
+    index=indices.AONIA,
+    effective=Date.from_any("2023-11-19"),
+    maturity=Date.from_any("2033-11-19"),
     frequency=Frequency.ANNUAL,
-    fixed_coupon=0.041512,
+    fixed_coupon=0.05,
     fixed_day_count=DayCount.ACT365F,
-    payment_calendar=Calendar(ql_calendar_id="UnitedKingdom"),
-    period_adjust=BusinessDayAdjustment.FOLLOWING,
-    payment_adjust=BusinessDayAdjustment.FOLLOWING,
-    maturity_adjust=BusinessDayAdjustment.FOLLOWING,
+    payment_calendar=Calendar(ql_calendar_id="Australia"),
+    period_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
+    payment_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
+    maturity_adjust=BusinessDayAdjustment.MODIFIEDFOLLOWING,
 )
-test_pricer = InterestRateSwapPricer(
+dom_pricer = InterestRateSwapPricer(
     swap=ois,
     market=market,
-    trade_info=TradeInfo(trade_id="OIS pricer", amount=1_000_000, is_receive=False),
+    trade_info=TradeInfo(trade_id="AUD dom pricer", amount=1_000_000, is_receive=False),
 )
 
-print(f"{test_pricer.get_name()} Value: {test_pricer.value():,.2f}")
-print(f"{test_pricer.get_name()} Par coupon: {test_pricer.par_coupon():,.6f}")
-print(f"{test_pricer.get_name()} Par spread: {test_pricer.par_spread():,.6f}")
+print(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
+print(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
+
+# %% [markdown]
+# ## SWAP PRICING - FOREIGN
+#
+# Now let us value the same swap from the point of Europe-based investor who funds his trades from EUR:
+
+# %%
+
+forn_pricer = InterestRateSwapPricer(
+    swap=ois,
+    market=market,
+    trade_info=TradeInfo(trade_id="AUD pricer xEUR", amount=1_000_000, is_receive=False, csa_id="AUDxEUR"),
+)
+
+print(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
+print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
+
+# %%
+
+# %%

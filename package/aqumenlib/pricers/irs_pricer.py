@@ -38,7 +38,8 @@ class InterestRateSwapPricer(Pricer, pydantic.BaseModel):
     def set_market(self, market_model: MarketView):
         self.market: MarketView = market_model
         self.market.ql_set_pricing_date()
-        _discount_curve = self.market.get_discounting_curve(self.swap.index.currency)
+        df_ccy = self.swap.index.currency if self.trade_info.csa_id is None else self.trade_info.csa_id
+        _discount_curve = self.market.get_discounting_curve(df_ccy)
         df_ts = ql.RelinkableYieldTermStructureHandle()
         df_ts.linkTo(_discount_curve.get_ql_curve())
         engine = ql.DiscountingSwapEngine(df_ts)

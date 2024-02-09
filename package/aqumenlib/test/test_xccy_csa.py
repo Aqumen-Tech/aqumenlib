@@ -218,7 +218,7 @@ def make_eurxaud_fxswap_model(
     Instruments used are FX swaps, and fwd_pts input determines the quotes.
     EUR is considered domestic currency.
     """
-    xfam = FXSwapFamily(
+    fxfam = FXSwapFamily(
         name="EURAUD FX swap",
         currency_base=Currency.EUR,
         currency_quote=Currency.AUD,
@@ -231,7 +231,7 @@ def make_eurxaud_fxswap_model(
         name="AUD XCCY Curve",
         market=market,
         instruments=[
-            create_instrument((xfam, "1Y"), fwd_pts),
+            create_instrument((fxfam, "1Y"), fwd_pts),
         ],
         target_currency=Currency.AUD,
         target_discounting_id="AUDxEUR",
