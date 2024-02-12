@@ -167,11 +167,14 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
 # %% [markdown]
 # ## Checking the resulting curves
 #
-# Let us print the zero rates on all the resulting curves:
+# Let us print the zero rates on all the resulting curves, which highlights the difference between the native discount curve in AUD and the one built using FX instruments.
+#
+# We also output the implied forward FX curves, one constructed from the domestic AUD discont curve (labelled as EUR/AUD fwd dom) and one built from FX quotes (labelled EUR/AUD fwd adj). We display these FX curves in forward points.
 
 # %%
 rates_for_df = []
 pd_e = pricing_date.to_excel()
+spot = market.get_spot_FX(Currency.EUR, Currency.AUD)
 for i in [1, 1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
     df_dict = {}
     d = Date.from_excel(pd_e + i * 30)
@@ -184,6 +187,8 @@ for i in [1, 1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
         curve_aud_x,
     ]:
         df_dict[c.get_name()] = f"{100* c.zero_rate(d):.2f}"
+    df_dict["EUR/AUD fwd dom"] = 1e4 * (market.get_fwd_FX(d, Currency.EUR, Currency.AUD) - spot)
+    df_dict["EUR/AUD fwd adj"] = 1e4 * (market.get_fwd_FX(d, Currency.EUR, Currency.AUD, "EUR", "AUDxEUR") - spot)
     rates_for_df.append(df_dict)
 
 import pandas as pd
