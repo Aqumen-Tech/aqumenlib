@@ -1,6 +1,8 @@
 ﻿# Copyright AQUMEN TECHNOLOGY SOLUTIONS LTD 2023-2024
 
 import datetime
+from aqumenlib.enums import BusinessDayAdjustment, TimeUnit
+from aqumenlib.instruments.future_contract import futures_symbol_to_month_start
 from pydantic import validate_call
 import QuantLib as ql
 
@@ -11,11 +13,8 @@ from aqumenlib.date import (
     date_to_isoint,
     datetime_to_excel_date,
     excel_date_to_datetime,
-    add_business_days,
-    add_calendar_days,
 )
-from aqumenlib.calendar import Calendar
-from aqumenlib.term import Term
+from aqumenlib.calendar import Calendar, add_business_days, add_calendar_days, date_adjust, date_advance
 
 
 def test_date_as_int():
@@ -115,3 +114,23 @@ def test_calendar():
     assert str(t.to_ql()) == "TARGET calendar"
     t = Calendar(ql_calendar_id=("UnitedKingdom", "Exchange"))
     assert str(t.to_ql()) == "London stock exchange calendar"
+
+
+def test_futures_code_conversion():
+    """
+    Test futures code conversion to dates
+    """
+    assert futures_symbol_to_month_start("M25") == Date.from_ymd(2025, 6, 1)
+    assert futures_symbol_to_month_start("F12") == Date.from_ymd(2012, 1, 1)
+    assert futures_symbol_to_month_start("Z30") == Date.from_ymd(2030, 12, 1)
+
+
+def test_dat_manipulations():
+    """
+    Test end of month method.
+    """
+    assert Date.end_of_month(Date.from_ymd(2025, 1, 15)) == Date.from_ymd(2025, 1, 31)
+    assert date_advance(Date.from_ymd(2025, 12, 15), 3, TimeUnit.MONTHS) == Date.from_ymd(2026, 3, 15)
+    assert date_adjust(Date.from_ymd(2024, 2, 3), ql.UnitedKingdom(), BusinessDayAdjustment.PRECEDING) == Date.from_ymd(
+        2024, 2, 2
+    )

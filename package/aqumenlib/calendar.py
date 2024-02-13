@@ -6,6 +6,8 @@ Calendar class - handles holidays in a given jurisdiction or location.
 
 from typing import Any, Self, Tuple
 from typing_extensions import Annotated
+from aqumenlib.date import Date, DateInput
+from aqumenlib.enums import BusinessDayAdjustment, TimeUnit
 
 from pydantic import BaseModel
 from pydantic.functional_validators import BeforeValidator
@@ -75,3 +77,66 @@ def inputconverter_calendar(v: Any) -> Calendar:
 
 
 CalendarInput = Annotated[Calendar, BeforeValidator(inputconverter_calendar)]
+
+
+def add_calendar_days(d: DateInput, ndays: int) -> Date:
+    """
+    Returns a date that is ndays calendar days away from the input date.
+    """
+    qd = d.to_ql()
+    return Date.from_ql(qd + ndays)
+
+
+def add_business_days(d: DateInput, ndays: int, calendar: Calendar | ql.Calendar) -> Date:
+    """
+    Returns a date that is ndays business days away from the input date.
+    """
+    if isinstance(calendar, Calendar):
+        ql_calendar = calendar.to_ql()
+    else:
+        ql_calendar = calendar
+    if ndays == 0:
+        return d
+    inc = +1 if ndays > 0 else -1
+    counter = 0
+    nd = d.to_ql().serialNumber()
+    while counter < abs(ndays):
+        nd = nd + inc
+        if not ql_calendar.isHoliday(ql.Date(nd)):
+            counter += 1
+    return Date.from_ql(ql.Date(nd))
+
+
+def date_adjust(
+    d: DateInput,
+    calendar: Calendar | ql.Calendar,
+    adj: BusinessDayAdjustment,
+) -> Self:
+    """
+    Adjust input date to a good business day
+    """
+    if isinstance(calendar, Calendar):
+        ql_calendar = calendar.to_ql()
+    else:
+        ql_calendar = calendar
+    adj_d = ql_calendar.adjust(d.to_ql(), adj.to_ql())
+    return Date.from_ql(adj_d)
+
+
+def date_advance(
+    d: DateInput,
+    n: int,
+    unit: TimeUnit,
+    calendar: Calendar | ql.Calendar = ql.NullCalendar(),
+    adj=BusinessDayAdjustment.FOLLOWING,
+    end_of_month_flag: bool = False,
+) -> Date:
+    """
+    Returns a date that is some number of time units away from the input date.
+    """
+    if isinstance(calendar, Calendar):
+        ql_calendar = calendar.to_ql()
+    else:
+        ql_calendar = calendar
+    adv_d = ql_calendar.advance(d.to_ql(), n, unit.to_ql(), adj.to_ql(), end_of_month_flag)
+    return Date.from_ql(adv_d)

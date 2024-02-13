@@ -80,6 +80,13 @@ class Date(BaseModel):
         return cls.from_py(datetime.date.today())
 
     @classmethod
+    def from_ymd(cls, y: int, m: int, d: int) -> Self:
+        """
+        Initializes the Date object from year, month, day numbers.
+        """
+        return cls(internal_isoint=y * 10000 + m * 100 + d)
+
+    @classmethod
     def from_py(cls, d: datetime.date) -> Self:
         """
         Initializes the Date object from a python datetime.date object
@@ -132,6 +139,10 @@ class Date(BaseModel):
                 except ValueError:
                     raise exc from exc
         raise ValidationError(f"Could not convert to Date: {v}")
+
+    @classmethod
+    def end_of_month(cls, d: Self) -> Self:
+        return Date.from_ql(ql.Date.endOfMonth(d.to_ql()))
 
     def to_py(self) -> datetime.date:
         """
@@ -219,28 +230,3 @@ def excel_date_to_datetime(xl_date: int) -> datetime.date:
     """
     delta = datetime.timedelta(days=int(xl_date))
     return __temp_xl_start + delta
-
-
-def add_calendar_days(d: DateInput, ndays: int) -> Date:
-    """
-    Returns a date that is ndays calendar days away from the input date.
-    """
-    qd = d.to_ql()
-    return Date.from_ql(qd + ndays)
-
-
-def add_business_days(d: DateInput, ndays: int, ql_calendar: Any) -> Date:
-    """
-    Returns a date that is ndays business days away from the input date.
-    """
-    ql.Date()
-    if ndays == 0:
-        return d
-    inc = +1 if ndays > 0 else -1
-    counter = 0
-    nd = d.to_ql().serialNumber()
-    while counter < abs(ndays):
-        nd = nd + inc
-        if not ql_calendar.isHoliday(ql.Date(nd)):
-            counter += 1
-    return Date.from_ql(ql.Date(nd))

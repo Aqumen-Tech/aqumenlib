@@ -38,7 +38,7 @@ class FXSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         self._inst_meta = InstrumentFamilyMeta(
             currency=self.currency_base,
             currency2=self.currency_quote,
-            risk_type=RiskType.RATE,
+            risk_type=RiskType.FX,
             asset_class=AssetClass.FX,
         )
 

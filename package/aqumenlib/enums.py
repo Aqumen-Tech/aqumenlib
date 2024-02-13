@@ -31,6 +31,22 @@ class Frequency(Enum):
 
 
 @unique
+class RateAveraging(Enum):
+    """
+    Rate averaging for interest rate swaps and futures.
+    """
+
+    ARITHMETIC = 0
+    GEOMETRIC = 1
+
+    def to_ql(self):
+        """
+        Get an equivalent QuantLib object of ql.RateAveraging type.
+        """
+        return self.value
+
+
+@unique
 class TimeUnit(Enum):
     """
     Time units to be used with definitions of terms and tenors.

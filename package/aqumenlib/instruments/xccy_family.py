@@ -60,7 +60,7 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         self._inst_meta = InstrumentFamilyMeta(
             currency=self.index_base.currency,
             currency2=self.index_quote.currency,
-            risk_type=RiskType.RATE,
+            risk_type=RiskType.FX,
             asset_class=AssetClass.FX,
         )
 
