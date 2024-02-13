@@ -4,7 +4,7 @@
 Term class - represents a tenor for a rate or instrument, and maps to QuantLib's Period class.
 """
 
-from typing import Any, Self
+from typing import Any, Optional, Self
 from typing_extensions import Annotated
 
 from pydantic import BaseModel

@@ -175,7 +175,7 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
 rates_for_df = []
 pd_e = pricing_date.to_excel()
 spot = market.get_spot_FX(Currency.EUR, Currency.AUD)
-for i in [1, 1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
+for i in [1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
     df_dict = {}
     d = Date.from_excel(pd_e + i * 30)
     df_dict["Date"] = str(d)

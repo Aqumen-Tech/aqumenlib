@@ -5,6 +5,7 @@ test bond functionality
 """
 
 from typing import List
+from aqumenlib.instrument import create_instrument
 import pytest
 
 from aqumenlib import (
@@ -140,4 +141,67 @@ def test_uk_gilt_cashflows():
     assert flows[0].amount == pytest.approx(40_000.00, abs=1e-5)
 
 
-# TODO add FRN test here - code exist in examples
+def test_frn():
+    """
+    Test SOFR FRN
+    """
+    pricing_date = Date.from_ymd(2025, 1, 27)
+    market = MarketView(name="test model", pricing_date=pricing_date)
+    sofr_curve = add_bootstraped_discounting_rate_curve_to_market(
+        name="SOFR Curve",
+        market=market,
+        instruments=[
+            create_instrument(("FUT-ICE-SR1", "G25"), 100 - 4),
+            create_instrument(("FUT-ICE-SR1", "H25"), 100 - 4.1),
+            create_instrument(("FUT-ICE-SR1", "J25"), 100 - 4.2),
+            create_instrument(("FUT-ICE-SR1", "K25"), 100 - 4.3),
+            create_instrument(("FUT-ICE-SR1", "M25"), 100 - 4.4),
+            create_instrument(("FUT-ICE-SR1", "N25"), 100 - 4.5),
+            create_instrument(("FUT-ICE-SR1", "Q25"), 100 - 4.6),
+            create_instrument(("FUT-ICE-SR1", "U25"), 100 - 4.7),
+            create_instrument(("FUT-ICE-SR1", "V25"), 100 - 4.8),
+            create_instrument(("FUT-ICE-SR1", "X25"), 100 - 4.9),
+            create_instrument(("FUT-ICE-SR1", "Z25"), 100 - 5.0),
+            create_instrument(("FUT-ICE-SR1", "H26"), 100 - 5.25),
+            create_instrument(("FUT-ICE-SR1", "K26"), 100 - 5.35),
+            create_instrument(("FUT-ICE-SR1", "M26"), 100 - 5.5),
+            create_instrument(("FUT-ICE-SR1", "U26"), 100 - 5.6),
+            create_instrument(("FUT-ICE-SR1", "X26"), 100 - 5.7),
+            create_instrument(("FUT-ICE-SR1", "Z26"), 100 - 6.0),
+            create_instrument(("FUT-ICE-SR1", "F27"), 100 - 6.0),
+            create_instrument(("FUT-ICE-SR1", "Z27"), 100 - 7.0),
+            create_instrument(("FUT-ICE-SR1", "Z28"), 100 - 7.0),
+        ],
+        rate_index=indices.SOFR,
+        interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
+    )
+    d0 = market.pricing_date.to_excel()
+    market.add_index_fixings(
+        indices.SONIA,
+        [[Date.from_excel(d0 - i), 0.043] for i in range(0, 100)],
+    )
+    # pd_e = pricing_date.to_excel()
+    # for i in range(1,48):
+    #     d = Date.from_excel(pd_e + i * 7)
+    #     print(d, sofr_curve.forward_rate(d, indices.SOFR))
+    bond = Bond(
+        name="test bond",
+        bond_type="FRN-SOFR",
+        effective=Date.from_ymd(2025, 1, 29),
+        maturity=Date.from_ymd(2028, 1, 27),
+        coupon=0.0001,
+    )
+    frn_pricer = BondPricer(
+        bond=bond,
+        market=market,
+        quote=100.0,
+        quote_convention=QuoteConvention.CleanPrice,
+        trade_info=TradeInfo(amount=1e6),
+    )
+    cflows = frn_pricer.calculate(Metric.CASHFLOWS)
+    print(cflows)
+    flows = cflows.flows
+    assert flows[0].currency == Currency.USD
+    assert flows[0].date == Date.from_any("2026-01-27")
+    assert flows[0].rate == pytest.approx(0.046, rel=1e-2)
+    assert flows[0].amount == pytest.approx(46_450, rel=1e-2)

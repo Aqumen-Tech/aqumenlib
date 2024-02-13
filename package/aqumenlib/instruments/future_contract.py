@@ -28,6 +28,12 @@ class IRFutureContractType(ABC):
         """
 
     @abstractmethod
+    def get_index(self) -> "RateIndex":
+        """
+        Returns rate index underlying this contract type.
+        """
+
+    @abstractmethod
     def accrual_start_date(self, contract_month: Date) -> Date:
         """
         Returns first accrual date of this contract type.
@@ -54,6 +60,9 @@ class ICESR1FutureContractType(IRFutureContractType):
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.ARITHMETIC
 
+    def get_index(self) -> "RateIndex":
+        return indices.SOFR
+
     def accrual_start_date(self, contract_month: Date) -> Date:
         return contract_month
 
@@ -73,6 +82,9 @@ class ICESR3FutureContractType(IRFutureContractType):
 
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.GEOMETRIC
+
+    def get_index(self) -> "RateIndex":
+        return indices.SOFR
 
     def accrual_start_date(self, contract_month: Date) -> Date:
         d = ql.Date.nthWeekday(3, ql.Wednesday, contract_month.month(), contract_month.year())

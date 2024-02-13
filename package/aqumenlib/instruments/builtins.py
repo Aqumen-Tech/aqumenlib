@@ -12,6 +12,7 @@ from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
 from aqumenlib.instrument_family import InstrumentFamily
 from aqumenlib.instruments.irbasis_family import IRBasisSwapFamily
+from aqumenlib.instruments.irfuture_family import OIFutureFamily
 from aqumenlib.state import StateManager
 from aqumenlib.index import Index
 from aqumenlib import indices
@@ -123,6 +124,12 @@ for swap_family in basis_swap_families:
         i = InstrumentType(family=swap_family, specifics=Term.from_ql(term))
         StateManager.store(InstrumentType, i)
 
+
+#
+# IR Futures
+#
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR1"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR3"))
 
 #
 # bond conventions

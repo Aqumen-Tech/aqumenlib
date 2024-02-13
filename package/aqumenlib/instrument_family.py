@@ -6,6 +6,7 @@ Also related functionality such as input converters.
 
 from abc import abstractmethod
 from typing import Any, List, Optional, Dict
+from aqumenlib.term import inputconverter_term
 
 import pydantic
 from pydantic.functional_validators import BeforeValidator
@@ -59,6 +60,16 @@ class InstrumentFamily(NamedObject, pydantic.BaseModel):
         """
         List of indices on each the instruments in this family depend.
         """
+
+    def specifics_input_process(self, specifics_input: Any) -> Any:
+        """
+        Family-specific input converter for instrument specifics.
+        Normally it's just maturity, but it can be overwritten to handle other
+        instrument conventions.
+        """
+        # most instruments use maturity code like 10Y for specifics, so let us
+        # provide default implementation for those
+        return inputconverter_term(specifics_input)
 
     def get_default_bump(self) -> float:
         """

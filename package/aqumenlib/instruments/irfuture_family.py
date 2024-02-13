@@ -22,16 +22,29 @@ class OIFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
     Overnight Index Interest Rate Future instrument.
     """
 
-    name: str
+    name: Optional[str] = None
     exchange: str
     contract_symbol: str
 
     def model_post_init(self, __context: Any) -> None:
+        if not self.name:
+            self.name = f"FUT-{self.exchange}-{self.contract_symbol}"
+        self._contract_type = lookup_contract_type(self.exchange, self.contract_symbol)
         self._inst_meta = InstrumentFamilyMeta(
-            currency=self.index.currency,
+            currency=self._contract_type.get_index().currency,
             risk_type=RiskType.RATE,
             asset_class=AssetClass.RATE,
         )
+
+    def specifics_input_process(self, specifics_input: Any) -> Any:
+        """
+        Family-specific input converter for instrument specifics.
+        Normally it's just maturity, but it can be overwritten to handle other
+        instrument conventions.
+        """
+        # most instruments use maturity code like 10Y for specifics, so let us
+        # provide default implementation for those
+        return specifics_input
 
     def get_meta(self) -> InstrumentFamilyMeta:
         return self._inst_meta
@@ -53,13 +66,12 @@ class OIFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
         """
         Create QuantLib represenation of this instrument
         """
-        contract_type = lookup_contract_type(self.exchange, self.contract_symbol)
         series = futures_symbol_to_month_start(term)
         return ql.OvernightIndexFutureRateHelper(
             quote_handle,  # QuoteHandle price,
-            contract_type.accrual_start_date(series).to_ql(),  # Date valueDate,
-            contract_type.accrual_end_date(series).to_ql(),  # Date maturityDate,
-            self.index.get_ql_index(),  # ext::shared_ptr< OvernightIndex > const & index,
+            self._contract_type.accrual_start_date(series).to_ql(),  # Date valueDate,
+            self._contract_type.accrual_end_date(series).to_ql(),  # Date maturityDate,
+            self._contract_type.get_index().get_ql_index(),  # ext::shared_ptr< OvernightIndex > const & index,
             ql.QuoteHandle(),  # QuoteHandle convexityAdjustment=Handle< Quote >(),
-            self.averaging.to_ql(),  # RateAveraging::Type averagingMethod=Compound
+            self._contract_type.rate_averaging().to_ql(),  # RateAveraging::Type averagingMethod=Compound
         )

@@ -27,7 +27,7 @@ class InstrumentType(NamedObject, pydantic.BaseModel):
 
     name: str = ""
     family: pydantic.SerializeAsAny[InstrumentFamily]
-    specifics: Term
+    specifics: Term | str  # TODO this requires class hierarchy
     family_class: str = ""  # internal, descriminator for de-serialization
 
     def model_post_init(self, __context: Any) -> None:
@@ -82,8 +82,8 @@ def inputconverter_inst_type(v: Any) -> InstrumentType:
         return StateManager.get(InstrumentType, v)
     elif isinstance(v, tuple):
         fam = inputconverter_inst_family(v[0])
-        term = inputconverter_term(v[1])
-        return InstrumentType(family=fam, specifics=term)
+        specifics = fam.specifics_input_process(v[1])
+        return InstrumentType(family=fam, specifics=specifics)
     else:
         raise pydantic.ValidationError(f"Could not convert input to InstrumentType: {v}")
 
