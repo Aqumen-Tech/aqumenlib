@@ -151,7 +151,7 @@ def test_frn():
         name="SOFR Curve",
         market=market,
         instruments=[
-            create_instrument(("FUT-ICE-SR1", "G25"), 100 - 4),
+            create_instrument(("FUT-ICE-SR1", "G25"), 100 - 4.0),
             create_instrument(("FUT-ICE-SR1", "H25"), 100 - 4.1),
             create_instrument(("FUT-ICE-SR1", "J25"), 100 - 4.2),
             create_instrument(("FUT-ICE-SR1", "K25"), 100 - 4.3),
@@ -205,3 +205,6 @@ def test_frn():
     assert flows[0].date == Date.from_any("2026-01-27")
     assert flows[0].rate == pytest.approx(0.046, rel=1e-2)
     assert flows[0].amount == pytest.approx(46_450, rel=1e-2)
+    v = frn_pricer.calculate(Metric.MODEL_VALUE)
+    assert v[0][0] == Currency.USD
+    assert v[0][1] == pytest.approx(1e6, abs=100)

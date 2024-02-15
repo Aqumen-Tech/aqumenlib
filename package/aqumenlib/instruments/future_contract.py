@@ -57,11 +57,14 @@ class ICESR1FutureContractType(IRFutureContractType):
     ICE One-Month SOFR Index Future
     """
 
+    def __init__(self, index) -> None:
+        self.index = index
+
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.ARITHMETIC
 
     def get_index(self) -> "RateIndex":
-        return indices.SOFR
+        return self.index
 
     def accrual_start_date(self, contract_month: Date) -> Date:
         return contract_month
@@ -71,7 +74,7 @@ class ICESR1FutureContractType(IRFutureContractType):
 
     def last_trading_date(self, contract_month: Date) -> Date:
         eom = Date.end_of_month(contract_month)
-        eom_bus = date_adjust(eom, indices.SOFR.calendar, BusinessDayAdjustment.PRECEDING)
+        eom_bus = date_adjust(eom, self.index.calendar, BusinessDayAdjustment.PRECEDING)
         return eom_bus
 
 
@@ -80,11 +83,14 @@ class ICESR3FutureContractType(IRFutureContractType):
     ICE Three-Month SOFR Index Future
     """
 
+    def __init__(self, index) -> None:
+        self.index = index
+
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.GEOMETRIC
 
     def get_index(self) -> "RateIndex":
-        return indices.SOFR
+        return self.index
 
     def accrual_start_date(self, contract_month: Date) -> Date:
         d = ql.Date.nthWeekday(3, ql.Wednesday, contract_month.month(), contract_month.year())
@@ -93,23 +99,32 @@ class ICESR3FutureContractType(IRFutureContractType):
     def accrual_end_date(self, contract_month: Date) -> Date:
         d = date_advance(contract_month, 3, TimeUnit.MONTHS)
         d = ql.Date.nthWeekday(3, ql.Wednesday, d.month(), d.year())
-        d = date_adjust(d, indices.SOFR.calendar, BusinessDayAdjustment.PRECEDING)
+        d = date_adjust(d, self.index.calendar, BusinessDayAdjustment.PRECEDING)
         return d
 
     def last_trading_date(self, contract_month: Date) -> Date:
         return self.accrual_end_date(contract_month)
 
 
-def lookup_contract_type(exchange: str, contract_symbol: str) -> IRFutureContractType:
-    lookup_id = exchange + "-" + contract_symbol
-    match lookup_id:
-        case "ICE-SR1":
-            return ICESR1FutureContractType()
-        case "ICE-SR3":
-            return ICESR3FutureContractType()
+_contract_types = {
+    "ICE-SR1": ICESR1FutureContractType(indices.SOFR),
+    "ICE-SR3": ICESR3FutureContractType(indices.SOFR),
+    "ICE_SOA": ICESR1FutureContractType(indices.SONIA),
+    "ICE_SO3": ICESR3FutureContractType(indices.SONIA),
+    "ICE_SA3": ICESR3FutureContractType(indices.SARON),
+    "ICE_EON": ICESR1FutureContractType(indices.ESTR),
+    "ICE_ER3": ICESR3FutureContractType(indices.ESTR),
+}
 
-    # ICE_SA3 = 0 # SARON 3M
-    # ICE_SO3 = 3 # SONIA 3M
+
+def lookup_contract_type(exchange: str, contract_symbol: str) -> IRFutureContractType:
+    """
+    Return an instance of IRFutureContractType specialized for a given contract type.
+    """
+    lookup_id = exchange + "-" + contract_symbol
+    if lookup_id not in _contract_types:
+        raise AqumenException(f"Terms for {lookup_id} have not been defined.")
+    return _contract_types[lookup_id]
 
 
 # Futures contract month codes to month number mapping
