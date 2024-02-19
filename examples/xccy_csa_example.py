@@ -3,13 +3,25 @@
 #
 # ## Cross-currency CSA discounting using AQumen SDK
 #
-# In this example we will look at how pricing can be done in the presense of various collateral agreements on trades, which normally are governed legally via a Credit Support Annex (CSA) agreement.
+# In this example we will look at how pricing can be done in the presense of various collateral
+#  agreements on trades, which normally are governed legally via a Credit Support Annex (CSA) agreement.
 #
-# In single currency case, this simply means that fully collaterized trades where the collateral holding account earns interest at some rate C, you should use a discount curve implied by the rate C in order to correctly value such trades. This is fairly simple to do; also in most markets now the risk free rates are becoming the same rates that the collateral accrues at, further trivializing the situation.
+# In single currency case, this simply means that fully collaterized trades where the collateral
+#  holding account earns interest at some rate C, you should use a discount curve
+# implied by the rate C in order to correctly value such trades.
+# This is fairly simple to do; also in most markets now the risk free rates are becoming the same rates
+# that the collateral accrues at, further trivializing the situation.
 #
-# So in this notebook, let us a look at a more complicated use case. Let us consider an investor who normally funds their operation in euros, but wishes to make some trades in a foreign currency (say AUD). Such an investor would typically fund his AUD trades by raising money in FX markets, not in the domestic AUD markets. The collateral would be posted in EUR, and corresponding rate like ESTR cannot be used to discount in AUD directly.
+# So in this notebook, let us a look at a more complicated use case.
+#  Let us consider an investor who normally funds their operation in euros,
+# but wishes to make some trades in a foreign currency (say AUD).
+# Such an investor would typically fund his AUD trades by raising money in FX markets,
+# not in the domestic AUD markets. The collateral would be posted in EUR,
+# and corresponding rate like ESTR cannot be used to discount in AUD directly.
 #
-# Therefore to value AUD trades, one needs to construct a discounting curve in AUD that is built using FX instruments like FX swaps and cross-currency swaps. Let us consider the steps required.
+# Therefore to value AUD trades, one needs to construct a discounting curve in
+# AUD that is built using FX instruments like FX swaps and cross-currency swaps.
+# Let us consider the steps required.
 #
 
 # %%
@@ -59,9 +71,17 @@ except ImportError:
 # %% [markdown]
 # ## Modeling domestic markets
 #
-# Let us assume that the FX instruments of interest are EUR-AUD FX swaps, and EURIBOR3M-BBSW3M cross currency swaps. In order to value the latter, we need to first model the domestic markets in both EUR and AUD, the way local investors would. This is required for two reasons. First, we will need  projected rates for both EURIBOR3M and BBSW3M, and we get those from local interest rate instruments like IR swaps; those quotes are provided under the assumption of local risk-free rate discounting, so proper local IR model is needed. Second, as an investor you want the local model of AUD market to verify pricing of on-market swaps and understand the impact of funding trades via  FX markets.
+# Let us assume that the FX instruments of interest are EUR-AUD FX swaps, and EURIBOR3M-BBSW3M
+# cross currency swaps. In order to value the latter, we need to first model the domestic markets
+# in both EUR and AUD, the way local investors would. This is required for two reasons.
+# First, we will need  projected rates for both EURIBOR3M and BBSW3M, and we get those from
+# local interest rate instruments like IR swaps; those quotes are provided under the assumption
+# of local risk-free rate discounting, so proper local IR model is needed.
+# Second, as an investor you want the local model of AUD market to verify pricing of on-market
+# swaps and understand the impact of funding trades via  FX markets.
 #
-# So let us create a market view where purely domestic instruments are used to build discount and forward curves for EUR and AUD.
+# So let us create a market view where purely domestic instruments
+#  are used to build discount and forward curves for EUR and AUD.
 
 # %%
 pricing_date = Date.from_any("2024-02-07")
@@ -124,7 +144,9 @@ curve_bbsw3m = add_bootstraped_rate_curve_to_market(
 # %% [markdown]
 # ## Modeling FX-driven AUD discounting curve
 #
-# As discussed above, trades funded by raising money in EUR/AUD FX markets and collaterizing in EUR should be valued with an effective AUD discounting curve derived off the EUR rates curves and FX instruments. Here we build such a curve using FX swaps and cross currency swaps:
+# As discussed above, trades funded by raising money in EUR/AUD FX markets and collaterizing
+# in EUR should be valued with an effective AUD discounting curve derived off the EUR rates
+# curves and FX instruments. Here we build such a curve using FX swaps and cross currency swaps:
 
 # %%
 market.add_spot_FX(Currency.EUR, Currency.AUD, 1.7)
@@ -167,9 +189,12 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
 # %% [markdown]
 # ## Checking the resulting curves
 #
-# Let us print the zero rates on all the resulting curves, which highlights the difference between the native discount curve in AUD and the one built using FX instruments.
+# Let us print the zero rates on all the resulting curves, which highlights the difference
+# between the native discount curve in AUD and the one built using FX instruments.
 #
-# We also output the implied forward FX curves, one constructed from the domestic AUD discont curve (labelled as EUR/AUD fwd dom) and one built from FX quotes (labelled EUR/AUD fwd adj). We display these FX curves in forward points.
+# We also output the implied forward FX curves, one constructed from the domestic AUD discont curve
+# (labelled as EUR/AUD fwd dom) and one built from FX quotes (labelled EUR/AUD fwd adj).
+#  We display these FX curves in forward points.
 
 # %%
 rates_for_df = []
@@ -251,7 +276,8 @@ print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
 # %% [markdown]
 # ## SWAP PRICING - OFF MARKET
 #
-# Now let us value a pricer that is significantly off-market. We will set fixed coupon rate to 1bps to get a better feel for the effect of changing the discount curve on valuation of fixed income instruments.
+# Now let us value a pricer that is significantly off-market. We will set fixed coupon rate to 1bps to
+#  get a better feel for the effect of changing the discount curve on valuation of fixed income instruments.
 
 # %%
 ois.fixed_coupon = 0.0001

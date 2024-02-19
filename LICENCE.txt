@@ -1,8 +1,7 @@
 See the file package/LICENCE for full licence agreement text: https://github.com/Aqumen-Tech/aqumenlib/blob/main/package/LICENCE
 
-The executive summary is that you are free to use this software for non-revenue generating activities.
-
-This includes: education, trial, testing, demonstration, etc.
+The executive summary is that you are free to use this software for any non-revenue generating activities,
+as well as most type of personal or individual uses. This includes: education, trial, testing, demonstration, and more.
 
 To use this software in production, contact us at solutions@aqumen.io to obtain the licence.
 
