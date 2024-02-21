@@ -110,10 +110,10 @@ def test_uk_gilt_value():
     #
     assert test_pricer.calculate(Metric.NATIVE_MARKET_VALUE) == test_pricer.value()
     assert test_pricer.calculate(Metric.NATIVE_MODEL_VALUE) == test_pricer.model_value()
-    assert test_pricer.calculate(Metric.RISK_VALUE) == [(Currency.GBP, test_pricer.model_value())]
-    assert test_pricer.calculate(Metric.VALUE) == [(Currency.GBP, test_pricer.market_value())]
-    assert test_pricer.calculate(Metric.MODEL_VALUE) == [(Currency.GBP, test_pricer.model_value())]
-    assert test_pricer.calculate(Metric.CURRENCY) == Currency.GBP, test_pricer.model_value()
+    assert test_pricer.calculate(Metric.RISK_VALUE) == {Currency.GBP: test_pricer.model_value()}
+    assert test_pricer.calculate(Metric.VALUE) == {Currency.GBP: test_pricer.market_value()}
+    assert test_pricer.calculate(Metric.MODEL_VALUE) == {Currency.GBP: test_pricer.model_value()}
+    assert test_pricer.calculate(Metric.CURRENCY) == Currency.GBP
     assert test_pricer.calculate(Metric.IRR) == test_pricer.irr()
     assert test_pricer.calculate(Metric.YIELD) == test_pricer.standard_yield()
     assert test_pricer.calculate(Metric.DURATION) == test_pricer.duration_modified()
@@ -206,5 +206,4 @@ def test_frn():
     assert flows[0].rate == pytest.approx(0.046, rel=1e-2)
     assert flows[0].amount == pytest.approx(46_450, rel=1e-2)
     v = frn_pricer.calculate(Metric.MODEL_VALUE)
-    assert v[0][0] == Currency.USD
-    assert v[0][1] == pytest.approx(1e6, abs=100)
+    assert v[Currency.USD] == pytest.approx(1e6, abs=100)

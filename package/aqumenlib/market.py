@@ -107,13 +107,23 @@ class MarketView(pydantic.BaseModel):
             raise AqumenException(f"{curve.get_name()}: curve already exists in this market.")
         self.all_curves[curve.get_name()] = curve
 
-    def get_discounting_curve(self, currency_or_csa: Currency | str) -> Curve:
+    def get_discounting_curve(self, currency: Currency, csa_id: Optional[str] = None) -> Curve:
         """
-        Retrive stored discount curve for a given currency.
+        Retrive stored discount curve for a given currency, optionally taking into account trade CSA.
         """
-        df_id = currency_or_csa.name if isinstance(currency_or_csa, Currency) else currency_or_csa
+        df_id = currency.name
+        if csa_id is not None:
+            df_id = f"{df_id}_{csa_id}"
         if df_id not in self.discount_curves:
-            raise KeyError(f"Currency or CSA {df_id} does not have discounting curve in this market view.")
+            raise KeyError(f"Cannot find discounting curve in this market view, curency {currency}, CSA {csa_id}.")
+        return self.get_discounting_curve_by_id(df_id)
+
+    def get_discounting_curve_by_id(self, df_id: str) -> Curve:
+        """
+        Retrive stored discount curve for a given currency, optionally taking into account trade CSA.
+        """
+        if df_id not in self.discount_curves:
+            raise KeyError(f"Cannot find discounting curve in this market view, ID: {df_id}.")
         return self.discount_curves[df_id]
 
     def add_index_curve(self, index: Index, curve: Curve) -> None:
@@ -166,12 +176,7 @@ class MarketView(pydantic.BaseModel):
         raise KeyError(f"Market does not contain exchange rate information for {ccy1.name}{ccy2.name}")
 
     def get_fwd_FX(
-        self,
-        fwd_date: Date,
-        ccy1: Currency,
-        ccy2: Currency,
-        csa1: Optional[Currency | str] = None,
-        csa2: Optional[Currency | str] = None,
+        self, fwd_date: Date, ccy1: Currency, ccy2: Currency, csa: Optional[str] = None
     ) -> float:  # pylint: disable=invalid-name
         """
         Returns forward FX rate, performing triangulation or inversion if necessary.
@@ -182,10 +187,8 @@ class MarketView(pydantic.BaseModel):
         """
         if ccy1 == ccy2:
             return 1.0
-        dfc1 = csa1 if csa1 is not None else ccy1
-        dfc2 = csa2 if csa2 is not None else ccy2
-        df1 = self.get_discounting_curve(dfc1).discount_factor(fwd_date)
-        df2 = self.get_discounting_curve(dfc2).discount_factor(fwd_date)
+        df1 = self.get_discounting_curve(ccy1, csa).discount_factor(fwd_date)
+        df2 = self.get_discounting_curve(ccy2, csa).discount_factor(fwd_date)
         return self.get_spot_FX(ccy1, ccy2) * df1 / df2
 
     def get_curve_by_name(self, curve_name: str) -> Optional[Curve]:

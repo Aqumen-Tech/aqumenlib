@@ -83,9 +83,9 @@ class CashFlowPricer(Pricer, pydantic.BaseModel):
             case Metric.NATIVE_MODEL_VALUE:
                 return self._cache_model_value
             case Metric.VALUE | Metric.MARKET_VALUE:
-                return [(self._currency, self.market_price)]
+                return {self._currency: self.market_price}
             case Metric.MODEL_VALUE | Metric.RISK_VALUE:
-                return [(self._currency, self._cache_model_value)]
+                return {self._currency: self._cache_model_value}
             case Metric.REPORTING_VALUE | Metric.REPORTING_MARKET_VALUE:
                 fx = self.market.get_spot_FX(
                     self.get_pricer_settings().reporting_currency,

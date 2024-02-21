@@ -147,8 +147,7 @@ def calculate_market_risk_in_place(
             continue
         base_values = defaultdict(float)
         for p in pricers:
-            for ccy_results in p.calculate(Metric.RISK_VALUE):
-                vccy, ccy_value = ccy_results
+            for vccy, ccy_value in p.calculate(Metric.RISK_VALUE).items():
                 base_values[vccy] += ccy_value
 
         old_inst_quote = inst.quote
@@ -158,8 +157,7 @@ def calculate_market_risk_in_place(
 
         bump_values = defaultdict(float)
         for ipricer in pricers:
-            for ccy_results in ipricer.calculate(Metric.RISK_VALUE):
-                vccy, ccy_value = ccy_results
+            for vccy, ccy_value in ipricer.calculate(Metric.RISK_VALUE).items():
                 bump_values[vccy] += ccy_value
 
         inst.set_quote(old_inst_quote)
@@ -200,15 +198,13 @@ def calculate_market_risk_full_rebuild(
     bump_markets = base_market.get_bumped_markets(filter_instrument)
     base_values = defaultdict(float)
     for p in pricers:
-        for ccy_results in p.calculate(Metric.RISK_VALUE):
-            vccy, ccy_value = ccy_results
+        for vccy, ccy_value in p.calculate(Metric.RISK_VALUE).items():
             base_values[vccy] += ccy_value
     for imarket_bump_info in bump_markets:
         bump_values = defaultdict(float)
         for ipricer in pricers:
             bump_pricer = ipricer.new_pricer_for_market(imarket_bump_info.market)
-            for ccy_results in bump_pricer.calculate(Metric.RISK_VALUE):
-                vccy, ccy_value = ccy_results
+            for vccy, ccy_value in bump_pricer.calculate(Metric.RISK_VALUE).items():
                 bump_values[vccy] += ccy_value
         for iccy, ibase_value in base_values.items():
             sens = (bump_values[iccy] - ibase_value) / imarket_bump_info.bump_size

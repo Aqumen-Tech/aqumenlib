@@ -66,7 +66,7 @@ class FXSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
         if discounting_id is None:
             df_ccy = self.currency_base if base_ccy_is_collateral else self.currency_quote
             discounting_id = df_ccy.name
-        df_curve = market.get_discounting_curve(discounting_id)
+        df_curve = market.get_discounting_curve_by_id(discounting_id)
         df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
         if self.calendar is None:
             self.calendar = Calendar(ql_calendar_id="NullCalendar")

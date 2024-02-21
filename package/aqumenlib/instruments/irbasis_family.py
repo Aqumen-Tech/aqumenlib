@@ -74,7 +74,7 @@ class IRBasisSwapFamily(RateInstrumentFamily, pydantic.BaseModel):
 
         df_handle = ql.YieldTermStructureHandle()
         if discounting_id is not None:
-            df_curve = market.get_discounting_curve(discounting_id)
+            df_curve = market.get_discounting_curve_by_id(discounting_id)
             df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
         if target_curve is None or target_curve.target_index is None:
             raise RuntimeError("Basis instrument used without target index being known.")

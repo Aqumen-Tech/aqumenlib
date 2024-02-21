@@ -89,7 +89,7 @@ class CrossCurrencySwapFamily(RateInstrumentFamily, pydantic.BaseModel):
             df_ccy = self.index_base.currency if base_ccy_is_collateral else self.index_quote.currency
             discounting_id = df_ccy.name
         df_handle = ql.YieldTermStructureHandle()
-        df_curve = market.get_discounting_curve(discounting_id)
+        df_curve = market.get_discounting_curve_by_id(discounting_id)
         df_handle = ql.YieldTermStructureHandle(df_curve.get_ql_curve())
         ql_index_base = market_util.get_modeled_ql_rate_index(market, self.index_base)
         ql_index_quote = market_util.get_modeled_ql_rate_index(market, self.index_quote)

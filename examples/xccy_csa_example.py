@@ -181,7 +181,7 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
         create_instrument((xfam, "30Y"), 0.003),
     ],
     target_currency=Currency.AUD,
-    target_discounting_id="AUDxEUR",
+    csa_id="AUDxEUR",
     interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
 )
 
@@ -213,7 +213,7 @@ for i in [1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
     ]:
         df_dict[c.get_name()] = f"{100* c.zero_rate(d):.2f}"
     df_dict["EUR/AUD fwd dom"] = 1e4 * (market.get_fwd_FX(d, Currency.EUR, Currency.AUD) - spot)
-    df_dict["EUR/AUD fwd adj"] = 1e4 * (market.get_fwd_FX(d, Currency.EUR, Currency.AUD, "EUR", "AUDxEUR") - spot)
+    df_dict["EUR/AUD fwd adj"] = 1e4 * (market.get_fwd_FX(d, Currency.EUR, Currency.AUD, "AUDxEUR") - spot)
     rates_for_df.append(df_dict)
 
 import pandas as pd

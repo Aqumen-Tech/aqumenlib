@@ -37,7 +37,7 @@ class BondPricer(Pricer, pydantic.BaseModel):
     def set_market(self, market_model: MarketView):
         self.market: MarketView = market_model
         self.market.ql_set_pricing_date()
-        self._discount_curve = self.market.get_discounting_curve(self.bond.bond_type.currency)
+        self._discount_curve = self.market.get_discounting_curve(self.bond.bond_type.currency, self.trade_info.csa_id)
         df_term_structure = ql.RelinkableYieldTermStructureHandle()
         df_term_structure.linkTo(self._discount_curve.get_ql_curve())
         engine = ql.DiscountingBondEngine(df_term_structure)
@@ -135,7 +135,9 @@ class BondPricer(Pricer, pydantic.BaseModel):
             case Metric.NATIVE_MODEL_VALUE:
                 return self.model_value()
             case Metric.VALUE | Metric.MARKET_VALUE:
-                return [(self.bond.bond_type.currency, self.market_value())]
+                return {self.bond.bond_type.currency: self.market_value()}
+            case Metric.MODEL_VALUE | Metric.RISK_VALUE:
+                return {self.bond.bond_type.currency: self.model_value()}
             case Metric.REPORTING_VALUE | Metric.REPORTING_MARKET_VALUE:
                 fx = self.market.get_spot_FX(
                     self.get_pricer_settings().reporting_currency,
@@ -148,8 +150,6 @@ class BondPricer(Pricer, pydantic.BaseModel):
                     self.bond.bond_type.currency,
                 )
                 return self.model_value() / fx
-            case Metric.MODEL_VALUE | Metric.RISK_VALUE:
-                return [(self.bond.bond_type.currency, self.model_value())]
             case Metric.CURRENCY:
                 return self.bond.bond_type.currency
             case Metric.IRR:

@@ -35,11 +35,10 @@ class InterestRateSwapPricer(Pricer, pydantic.BaseModel):
     def get_market(self) -> "MarketView":
         return self.market
 
-    def set_market(self, market_model: MarketView):
+    def set_market(self, market_model: MarketView) -> None:
         self.market: MarketView = market_model
         self.market.ql_set_pricing_date()
-        df_ccy = self.swap.index.currency if self.trade_info.csa_id is None else self.trade_info.csa_id
-        _discount_curve = self.market.get_discounting_curve(df_ccy)
+        _discount_curve = self.market.get_discounting_curve(self.swap.index.currency, self.trade_info.csa_id)
         df_ts = ql.RelinkableYieldTermStructureHandle()
         df_ts.linkTo(_discount_curve.get_ql_curve())
         engine = ql.DiscountingSwapEngine(df_ts)
@@ -75,25 +74,25 @@ class InterestRateSwapPricer(Pricer, pydantic.BaseModel):
             )
         self._ql_swap.setPricingEngine(engine)
 
-    def get_name(self):
+    def get_name(self) -> str:
         if self.trade_info.trade_id:
             return self.trade_info.trade_id
         else:
             return self.swap.name
 
-    def value(self):
+    def value(self) -> float:
         """
         Valuation in native currency
         """
         return self._ql_swap.NPV()
 
-    def par_coupon(self):
+    def par_coupon(self) -> float:
         """
         Par fixed leg coupon
         """
         return self._ql_swap.fairRate()
 
-    def par_spread(self):
+    def par_spread(self) -> float:
         """
         Par floating spread
         """
@@ -105,7 +104,7 @@ class InterestRateSwapPricer(Pricer, pydantic.BaseModel):
             case Metric.NATIVE_MARKET_VALUE | Metric.NATIVE_MODEL_VALUE:
                 return self.value()
             case Metric.VALUE | Metric.MARKET_VALUE | Metric.MODEL_VALUE | Metric.RISK_VALUE:
-                return [(self.swap.index.currency, self.value())]
+                return {self.swap.index.currency: self.value()}
             case Metric.REPORTING_VALUE | Metric.REPORTING_MARKET_VALUE | Metric.REPORTING_MODEL_VALUE:
                 fx = self.market.get_spot_FX(
                     self.get_pricer_settings().reporting_currency,
@@ -114,6 +113,8 @@ class InterestRateSwapPricer(Pricer, pydantic.BaseModel):
                 return self.value() / fx
             case Metric.CURRENCY:
                 return self.swap.index.currency
+            case Metric.PAR_RATE:
+                return self.par_coupon()
             case Metric.CASHFLOWS:
                 dt = self.market.pricing_date.to_ql()
                 flows = []

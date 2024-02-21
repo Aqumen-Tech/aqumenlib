@@ -5,6 +5,7 @@ Interest rate curve building functionality
 """
 
 from typing import List, Optional
+from aqumenlib.exception import AqumenException
 import pydantic
 
 import QuantLib as ql
@@ -204,7 +205,7 @@ def add_bootstraped_rate_curve_to_market(
         target_index=rate_index,
         discounting_id=rate_index.get_currency().name,
     )
-    curve.prerequisite_curve_ids = [market.get_discounting_curve(curve.discounting_id).get_name()]
+    curve.prerequisite_curve_ids = [market.get_discounting_curve_by_id(curve.discounting_id).get_name()]
     for inst in instruments:
         for dep_index in inst.get_family().get_underlying_indices():
             if dep_index.get_name() != rate_index.get_name():
@@ -221,7 +222,7 @@ def add_bootstraped_xccy_discounting_curve_to_market(
     market: MarketView,
     instruments: List[Instrument],
     target_currency: Currency,
-    target_discounting_id: str,
+    csa_id: str,
     interpolator: RateInterpolationType = RateInterpolationType.PiecewiseLogLinearDiscount,
 ) -> Curve:
     """
@@ -229,9 +230,21 @@ def add_bootstraped_xccy_discounting_curve_to_market(
     The curve is built using cross-currency instruments, therefore projected
     curve is assumed to exist for target_index.
     """
+    ccys = set()
     for inst in instruments:
         market.add_instrument(inst)
+        meta = inst.inst_type.family.get_meta()
+        if meta.currency2 is None:
+            raise AqumenException(f"Instrument {inst.get_name()} is not suitable for cross-currency curve calibration")
+        ccys.add(meta.currency)
+        ccys.add(meta.currency2)
     inst_names = [i.name for i in instruments]
+    if target_currency not in ccys:
+        raise AqumenException(f"Instruments in cross-currency curve calibration do not match target currency")
+    ccys.remove(target_currency)
+    if len(ccys) != 1:
+        raise AqumenException(f"Instruments in cross-currency curve calibration contain multiple currencies")
+    other_currency = ccys.pop()
     #
     curve = BootstrappedRateCurveQL(
         name=name,
@@ -240,5 +253,6 @@ def add_bootstraped_xccy_discounting_curve_to_market(
         interpolator=interpolator,
     )
     curve.build(market)
-    market.add_discount_curve(target_discounting_id, curve)
+    market.add_discount_curve(f"{target_currency.name}_{csa_id}", curve)
+    market.add_discount_curve(f"{other_currency.name}_{csa_id}", curve)
     return curve

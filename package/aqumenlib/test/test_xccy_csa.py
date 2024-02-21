@@ -106,7 +106,7 @@ def make_eurxaud_xccy_model(market: MarketView, spread: float, spread_on_domesti
             create_instrument((xfam, "10Y"), spread),
         ],
         target_currency=Currency.AUD,
-        target_discounting_id="AUDxEUR",
+        csa_id="AUDxEUR",
         interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
     )
     return market
@@ -184,7 +184,7 @@ def test_eurxaud_csa_model():
         curve_euribor3m = market.get_index_curve(indices.EURIBOR3M)
         curve_aonia = market.get_discounting_curve(Currency.AUD)
         curve_bbsw3m = market.get_index_curve(indices.BBSW3M)
-        curve_aud_x = market.get_discounting_curve("AUDxEUR")
+        curve_aud_x = market.get_discounting_curve(Currency.AUD, csa_id="AUDxEUR")
         df_dict = {}
         for c in [
             curve_estr,
@@ -234,7 +234,7 @@ def make_eurxaud_fxswap_model(
             create_instrument((fxfam, "1Y"), fwd_pts),
         ],
         target_currency=Currency.AUD,
-        target_discounting_id="AUDxEUR",
+        csa_id="AUDxEUR",
         interpolator=RateInterpolationType.PiecewiseLogLinearDiscount,
     )
     return market
@@ -285,7 +285,7 @@ def test_eurxaud_fx_model():
             fwd_pts=tcase[1],
         )
         curve_estr = market.get_discounting_curve(Currency.EUR)
-        curve_aud_x = market.get_discounting_curve("AUDxEUR")
+        curve_aud_x = market.get_discounting_curve(Currency.AUD, "AUDxEUR")
         one_year = Date.from_isoint(20241128)
         df_dict = {}
         for c in [
@@ -294,7 +294,7 @@ def test_eurxaud_fx_model():
         ]:
             df_dict[c.get_name()] = f"{100* c.zero_rate(one_year):.5f}"
         df_dict["Fwd pts"] = f"{tcase[1]:.5f}"
-        fx1 = market.get_fwd_FX(one_year, Currency.EUR, Currency.AUD, csa1=None, csa2="AUDxEUR")
+        fx1 = market.get_fwd_FX(one_year, Currency.EUR, Currency.AUD, csa="AUDxEUR")
         df_dict["FX fwd"] = f"{fx1:.5f}"
         df_dict["Expect"] = f"{100*expected_df_rate_from_fxswap(tcase[0],1.7,tcase[1]):.5f}"
         results_for_df.append(df_dict)

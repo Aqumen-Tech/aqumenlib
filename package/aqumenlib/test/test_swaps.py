@@ -88,8 +88,9 @@ def test_ois_simple():
     """
     test_pricer = make_ois_simple_pricer()
 
-    assert test_pricer.calculate(Metric.VALUE)[0][0] == Currency.GBP
-    assert test_pricer.calculate(Metric.VALUE)[0][1] == pytest.approx(-155147, abs=1)
+    v = test_pricer.calculate(Metric.VALUE)
+    assert Currency.GBP in v
+    assert v[Currency.GBP] == pytest.approx(-155147, abs=1)
     assert test_pricer.calculate(Metric.REPORTING_VALUE) == pytest.approx(-155147, abs=1)
     assert test_pricer.par_coupon() == pytest.approx(0.05, abs=1e-5)
     assert test_pricer.par_spread() == pytest.approx(0.02, abs=1e-5)
@@ -123,9 +124,8 @@ def test_ois_roundtrip():
     test_pricer.swap.fixed_coupon = 0.05
     test_pricer.set_market(test_pricer.market)
 
-    value = test_pricer.calculate(Metric.VALUE)[0]
-    assert value[0] == Currency.GBP
-    assert value[1] == pytest.approx(0, abs=1e-5)
+    value = test_pricer.calculate(Metric.VALUE)[Currency.GBP]
+    assert value == pytest.approx(0, abs=1e-5)
     assert test_pricer.calculate(Metric.REPORTING_VALUE) == pytest.approx(0, abs=1.01)
     assert test_pricer.par_coupon() == pytest.approx(0.05, abs=1e-5)
     assert test_pricer.par_spread() == pytest.approx(0.0, abs=1e-5)

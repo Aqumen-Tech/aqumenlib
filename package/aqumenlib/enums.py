@@ -180,6 +180,7 @@ class Metric(Enum):
     REPORTING_MODEL_VALUE = auto()
     RISK_VALUE = auto()
     CURRENCY = auto()
+    CURRENCY_OTHER = auto()
     CASHFLOWS = auto()
     IRR = auto()
     YIELD = auto()
@@ -187,6 +188,7 @@ class Metric(Enum):
     DURATION_MACAULAY = auto()
     CONVEXITY = auto()
     ZSPREAD = auto()
+    PAR_RATE = auto()
     # DV01 = auto() # TODO DV01, Inflation01
 
 
