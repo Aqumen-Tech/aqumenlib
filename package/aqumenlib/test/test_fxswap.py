@@ -76,11 +76,37 @@ def test_fxswap_pricing():
         forward_points=0.0150,
     )
     fxswap_pricer = FXSwapPricer(
-        fxswap=fxswap, market=market, trade_info=TradeInfo(trade_id="test pricer", amount=1_000_000, is_receive=False)
+        fxswap=fxswap,
+        market=market,
+        trade_info=TradeInfo(
+            trade_id="test pricer",
+            amount=1_000_000,
+            is_receive=False,
+        ),
     )
-    print(fxswap_pricer.get_cashflows())
-    print("Value:", fxswap_pricer.value())
-    print("Reporting currency value:", fxswap_pricer.calculate(Metric.REPORTING_MARKET_VALUE))
-
-
-test_fxswap_pricing()
+    # print(fxswap_pricer.get_cashflows())
+    # print("Value:", fxswap_pricer.value())
+    # print("Reporting currency value:", fxswap_pricer.calculate(Metric.REPORTING_MARKET_VALUE))
+    #
+    v = fxswap_pricer.value()
+    assert v[Currency.AUD] == pytest.approx(97500, rel=0.01)
+    assert v[Currency.EUR] == pytest.approx(-48300, rel=0.01)
+    assert fxswap_pricer.calculate(Metric.REPORTING_MARKET_VALUE) == pytest.approx(8960, rel=0.01)
+    cashflows = fxswap_pricer.get_cashflows().flows
+    assert len(cashflows) == 4
+    assert sum(map(lambda c: c.amount, cashflows)) == pytest.approx(-15_000)
+    #
+    # test round trip by creating a trade with CSA attached
+    #
+    fxswap_pricer = FXSwapPricer(
+        fxswap=fxswap,
+        market=market,
+        trade_info=TradeInfo(
+            trade_id="test pricer",
+            amount=1_000_000,
+            is_receive=False,
+            csa_id="AUDxEUR",
+        ),
+    )
+    pv = fxswap_pricer.calculate(Metric.REPORTING_MARKET_VALUE)
+    assert abs(pv) < 5.0

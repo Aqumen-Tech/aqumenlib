@@ -240,10 +240,10 @@ def add_bootstraped_xccy_discounting_curve_to_market(
         ccys.add(meta.currency2)
     inst_names = [i.name for i in instruments]
     if target_currency not in ccys:
-        raise AqumenException(f"Instruments in cross-currency curve calibration do not match target currency")
+        raise AqumenException("Instruments in cross-currency curve calibration do not match target currency")
     ccys.remove(target_currency)
     if len(ccys) != 1:
-        raise AqumenException(f"Instruments in cross-currency curve calibration contain multiple currencies")
+        raise AqumenException("Instruments in cross-currency curve calibration contain multiple currencies")
     other_currency = ccys.pop()
     #
     curve = BootstrappedRateCurveQL(
@@ -254,5 +254,9 @@ def add_bootstraped_xccy_discounting_curve_to_market(
     )
     curve.build(market)
     market.add_discount_curve(f"{target_currency.name}_{csa_id}", curve)
-    market.add_discount_curve(f"{other_currency.name}_{csa_id}", curve)
+    if curve.discounting_id is not None:
+        other_df = market.get_discounting_curve_by_id(curve.discounting_id)
+    else:
+        other_df = market.get_discounting_curve(other_currency)
+    market.add_discount_curve(f"{other_currency.name}_{csa_id}", other_df)
     return curve
