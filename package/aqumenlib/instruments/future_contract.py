@@ -109,11 +109,11 @@ class ICESR3FutureContractType(IRFutureContractType):
 _contract_types = {
     "ICE-SR1": ICESR1FutureContractType(indices.SOFR),
     "ICE-SR3": ICESR3FutureContractType(indices.SOFR),
-    "ICE_SOA": ICESR1FutureContractType(indices.SONIA),
-    "ICE_SO3": ICESR3FutureContractType(indices.SONIA),
-    "ICE_SA3": ICESR3FutureContractType(indices.SARON),
-    "ICE_EON": ICESR1FutureContractType(indices.ESTR),
-    "ICE_ER3": ICESR3FutureContractType(indices.ESTR),
+    "ICE-SOA": ICESR1FutureContractType(indices.SONIA),
+    "ICE-SO3": ICESR3FutureContractType(indices.SONIA),
+    "ICE-SA3": ICESR3FutureContractType(indices.SARON),
+    "ICE-EON": ICESR1FutureContractType(indices.ESTR),
+    "ICE-ER3": ICESR3FutureContractType(indices.ESTR),
 }
 
 

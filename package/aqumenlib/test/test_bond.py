@@ -4,7 +4,7 @@
 test bond functionality
 """
 
-from typing import List
+from typing import List, Optional
 from aqumenlib.instrument import create_instrument
 import pytest
 
@@ -54,11 +54,12 @@ def make_market(pricing_date: Date):
     return market
 
 
-def make_uk_gilt_pricer() -> BondPricer:
+def make_uk_gilt_pricer(market: Optional[MarketView] = None) -> BondPricer:
     """
     Create bond pricer for test
     """
-    market = make_market(Date.from_any("2013-05-28"))
+    if market is None:
+        market = make_market(Date.from_any("2013-05-28"))
     bond = Bond(
         name="test bond",
         bond_type="Govt-UK",

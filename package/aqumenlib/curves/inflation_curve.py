@@ -96,11 +96,7 @@ class InflationCurveQL(Curve, pydantic.BaseModel):
         build_instruments = [market.get_instrument(i) for i in self.instrument_names]
         ql_instruments = []
         for inst in build_instruments:
-            ql_helper = inst.inst_type.family.create_ql_instrument(
-                market=market,
-                quote_handle=inst.get_quote_hanlde(),
-                term=inst.inst_type.specifics,
-            )
+            ql_helper = inst.create_ql_instrument(market=market)
             ql_instruments.append(ql_helper)
         base_rate = build_instruments[0].get_quote()
         qdate = market.pricing_date.to_ql()

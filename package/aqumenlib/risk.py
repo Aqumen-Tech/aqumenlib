@@ -165,7 +165,7 @@ def calculate_market_risk_in_place(
             sens = (bump_values[iccy] - ibase_value) / bump_size
             if remove_zero_sens and abs(sens) < 1e-5:
                 continue
-            tenor_as_time = try_get_tenor_time(inst.get_inst_specifics())
+            tenor_as_time = try_get_tenor_time(inst, market)
             row = RiskResultRow(
                 risk_currency=iccy,
                 instrument=inst.name,
@@ -211,7 +211,7 @@ def calculate_market_risk_full_rebuild(
             instr = base_market.get_instrument(imarket_bump_info.instrument.name)
             if remove_zero_sens and abs(sens) < 1e-5:
                 continue
-            tenor_as_time = try_get_tenor_time(instr.get_inst_specifics())
+            tenor_as_time = try_get_tenor_time(instr, base_market)
             row = RiskResultRow(
                 risk_currency=iccy,
                 instrument=instr.name,

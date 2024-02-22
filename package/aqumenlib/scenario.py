@@ -95,7 +95,7 @@ class BaseQuoteAdjuster(ABC, pydantic.BaseModel):
     """
 
     @abstractmethod
-    def apply_adjustment(self, instrument: Instrument) -> Instrument:
+    def apply_adjustment(self, instrument: Instrument, market: "MarketView") -> Instrument:
         """
         Applies adjustment to a quote by constructing a new instrument
         with a quote adjusted from the original value.
@@ -110,7 +110,7 @@ class SimpleQuoteAdjuster(BaseQuoteAdjuster, pydantic.BaseModel):
     adjustment_type: QuoteBumpType
     adjustment_value: float
 
-    def apply_adjustment(self, instrument: Instrument) -> Instrument:
+    def apply_adjustment(self, instrument: Instrument, market: "MarketView") -> Instrument:
         """
         Applies adjustment to a quote by constructing a new instrument
         with a quote adjusted from the original value.
@@ -135,12 +135,12 @@ class TermStructureQuoteAdjuster(BaseQuoteAdjuster, pydantic.BaseModel):
     adjustment_type: QuoteBumpType
     adjustment_function: Any
 
-    def apply_adjustment(self, instrument: Instrument) -> Instrument:
+    def apply_adjustment(self, instrument: Instrument, market: "MarketView") -> Instrument:
         """
         Applies adjustment to a quote by constructing a new instrument
         with a quote adjusted from the original value.
         """
-        pillar_time = try_get_tenor_time(instrument.get_inst_specifics())
+        pillar_time = try_get_tenor_time(instrument, market)
         if pillar_time is None:
             return instrument
         new_inst_quote = instrument.quote
@@ -205,7 +205,7 @@ class AdjustQuotesScenario(Scenario, pydantic.BaseModel):
         for adj in self.instrument_adjusments:
             for _, inst in market.get_instrument_map().items():
                 if adj.matches_instrument(inst):
-                    new_inst: Instrument = adj.adjuster.apply_adjustment(inst)
+                    new_inst: Instrument = adj.adjuster.apply_adjustment(inst, market)
                     new_inst_dict[inst.name] = new_inst
                     affected_instruments.append(new_inst)
         new_market = market.new_market_for_instruments(affected_instruments)

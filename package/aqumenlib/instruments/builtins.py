@@ -130,6 +130,11 @@ for swap_family in basis_swap_families:
 #
 StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR1"))
 StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR3"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SOA"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SO3"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SA3"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="EON"))
+StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="ER3"))
 
 #
 # bond conventions

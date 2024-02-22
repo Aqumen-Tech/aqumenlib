@@ -55,6 +55,15 @@ class OIFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
     def get_underlying_indices(self) -> List[Index]:
         return [self.index]
 
+    def bump_quote(self, old_quote: float, bump_size: float) -> float:
+        """
+        Calculate new quote given a bump that should apply to a relevant underlying metric.
+        For example, if the instrument is a rate futures one where quote is presented as 100*(1-r)
+        where r is underlying rate, then this method will be overwritten in
+        the most derived instrument family to return q - bump_size*100
+        """
+        return old_quote - bump_size * 100
+
     def create_ql_instrument(
         self,
         market: "MarketView",

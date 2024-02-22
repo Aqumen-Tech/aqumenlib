@@ -111,10 +111,8 @@ class BootstrappedRateCurveQL(Curve, pydantic.BaseModel):
         build_instruments = [market.get_instrument(i) for i in self.instrument_ids]
         ql_instruments = ql.RateHelperVector()
         for inst in build_instruments:
-            ql_helper = inst.inst_type.family.create_ql_instrument(
+            ql_helper = inst.create_ql_instrument(
                 market=market,
-                quote_handle=inst.get_quote_hanlde(),
-                term=inst.inst_type.specifics,
                 discounting_id=self.discounting_id,
                 target_curve=self,
             )

@@ -200,7 +200,7 @@ def test_inflation_curve():
     assert len(row) == 1
     assert row[0].risk == pytest.approx(-85052, abs=1000)
     assert row[0].quote == pytest.approx(0.05, abs=1e-9)
-    assert row[0].tenor_time == 25
+    assert row[0].tenor_time == pytest.approx(25, rel=0.01)
     assert row[0].inst_family == "ZCB-GBP"
     assert row[0].asset_class == AssetClass.RATE
     assert row[0].risk_type == RiskType.RATE
@@ -211,7 +211,7 @@ def test_inflation_curve():
     assert len(row) == 1
     assert row[0].risk == pytest.approx(53390, abs=1000)
     assert row[0].quote == pytest.approx(0.037340, abs=1e-9)
-    assert row[0].tenor_time == 40
+    assert row[0].tenor_time == pytest.approx(40, rel=0.01)
     assert row[0].inst_family == "InflationZCS-UKRPI"
     assert row[0].asset_class == AssetClass.INFLATION
     assert row[0].risk_type == RiskType.INFLATION

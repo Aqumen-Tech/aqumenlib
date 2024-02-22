@@ -25,7 +25,9 @@ class Instrument(pydantic.BaseModel):
     def model_post_init(self, __context: Any) -> None:
         if not self.name:
             self.name = self.inst_type.get_name()
+        # TODO delegate creation of quote handle to instrument family
         self._ql_relinkable_handle = ql.RelinkableQuoteHandle(ql.SimpleQuote(self.quote))
+        self._ql_instrument = None
 
     def get_name(self) -> str:
         """
@@ -95,6 +97,24 @@ class Instrument(pydantic.BaseModel):
         """
         return self.inst_type.family.get_currency()
 
+    def create_ql_instrument(
+        self,
+        market: "MarketView",
+        discounting_id: Optional[str] = None,
+        target_curve: Optional["Curve"] = None,
+    ) -> Any:
+        """
+        Create QuantLib represenation of this instrument
+        """
+        self._ql_instrument = self.inst_type.family.create_ql_instrument(
+            market=market,
+            quote_handle=self.get_quote_hanlde(),
+            term=self.inst_type.specifics,
+            discounting_id=discounting_id,
+            target_curve=target_curve,
+        )
+        return self._ql_instrument
+
     @classmethod
     def from_type(cls, inst_type: InstrumentType, quote: float) -> Self:
         """
@@ -122,12 +142,18 @@ def create_instrument(
     return i
 
 
-def try_get_tenor_time(specifics: Any) -> Optional[float]:
+def try_get_tenor_time(instrument: Instrument, market: "MarketView") -> Optional[float]:
     """
     If possible, try to figure out the pillar's time for an instrument.
     e.g. IRS-SONIA-5Y should have a pillar time of 5.
     """
-    # TODO use pillarTime() from ql helper
+    if isinstance(instrument._ql_instrument, ql.RateHelper):
+        pillar = instrument._ql_instrument.pillarDate()
+        t0 = market.pricing_date.to_ql()
+        t = ql.Actual365Fixed().yearFraction(t0, pillar)
+        return t
+
+    specifics = instrument.get_inst_specifics()
     if isinstance(specifics, ql.Period):
         p = specifics
     if isinstance(specifics, Term):

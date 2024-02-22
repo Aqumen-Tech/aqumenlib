@@ -75,6 +75,7 @@ class FXSwapPricer(Pricer, pydantic.BaseModel):
         """
         Return FX swap cash flows.
         """
+        # TODO handle NDF
         dt = self.market.pricing_date.to_ql()
         flows = []
         if self.fxswap.initial_exchange and (include_past or self.fxswap.start_date.to_ql() >= dt):
