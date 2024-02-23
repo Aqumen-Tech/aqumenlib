@@ -11,6 +11,7 @@ from pydantic.functional_validators import BeforeValidator
 from aqumenlib import AssetClass, Currency, RiskType
 from aqumenlib.instrument_family import (
     InstrumentFamily,
+    InstrumentFamilyInput,
     get_instrument_family_class_by_name,
     inputconverter_inst_family,
 )
@@ -89,3 +90,11 @@ def inputconverter_inst_type(v: Any) -> InstrumentType:
 
 
 InstrumentTypeInput = Annotated[InstrumentType, BeforeValidator(inputconverter_inst_type)]
+
+
+@pydantic.validate_call
+def create_instrument_type(family: InstrumentFamilyInput, specifics: Term | str) -> InstrumentType:
+    """
+    Create an instrument type object, using input converters.
+    """
+    return InstrumentType(family=family, specifics=specifics)

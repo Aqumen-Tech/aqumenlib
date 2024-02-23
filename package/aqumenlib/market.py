@@ -328,6 +328,14 @@ class MarketView(pydantic.BaseModel):
         return ret
 
 
+@pydantic.validate_call
+def create_market_view(name: str, pricing_date: DateInput) -> MarketView:
+    """
+    Create a new MarketView instance.
+    """
+    return MarketView(name=name, pricing_date=pricing_date)
+
+
 @dataclass
 class BumpedInstrumentMarket:
     """

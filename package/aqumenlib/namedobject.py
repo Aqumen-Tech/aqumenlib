@@ -14,4 +14,3 @@ class NamedObject(ABC):
         """
         Identifier (human readable name) of an object
         """
-        pass

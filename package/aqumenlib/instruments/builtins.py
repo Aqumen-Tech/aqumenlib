@@ -11,8 +11,13 @@ from aqumenlib import Currency, Frequency
 from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
 from aqumenlib.instrument_family import InstrumentFamily
+from aqumenlib.instruments.future_contract import (
+    ICESR1FutureContractType,
+    ICESR3FutureContractType,
+    IRFutureContractType,
+)
 from aqumenlib.instruments.irbasis_family import IRBasisSwapFamily
-from aqumenlib.instruments.irfuture_family import OIFutureFamily
+from aqumenlib.instruments.irfuture_family import IRFutureFamily
 from aqumenlib.state import StateManager
 from aqumenlib.index import Index
 from aqumenlib import indices
@@ -106,7 +111,8 @@ for tenor in [1, 3, 6, 12]:
         index2=getattr(indices, f"EURIBOR{tenor}M"),
     )
     basis_swap_families.append(swap_family)
-# EURIBOR-EURIBOR
+
+# EURIBOR-EURIBOR basis
 for tenor1 in [1, 3, 6, 12]:
     for tenor2 in [1, 3, 6, 12]:
         if tenor2 <= tenor1:
@@ -128,13 +134,19 @@ for swap_family in basis_swap_families:
 #
 # IR Futures
 #
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR1"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SR3"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SOA"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SO3"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="SA3"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="EON"))
-StateManager.store(InstrumentFamily, OIFutureFamily(exchange="ICE", contract_symbol="ER3"))
+
+_contract_types = [
+    ICESR1FutureContractType(indices.SOFR, "SR1", "ICE One-Month SOFR Index Future"),
+    ICESR3FutureContractType(indices.SOFR, "SR3", "ICE Three-Month SOFR Index Future"),
+    ICESR1FutureContractType(indices.SONIA, "SOA", "ICE Three-Month SONIA Index Future"),
+    ICESR3FutureContractType(indices.SONIA, "SO3", "ICE Three-Month SONIA Index Future"),
+    ICESR3FutureContractType(indices.SARON, "SA3", "ICE Three-Month SARON Index Future"),
+    ICESR1FutureContractType(indices.ESTR, "EON", "ICE One-Month ESTR Index Future"),
+    ICESR3FutureContractType(indices.ESTR, "ER3", "ICE Three-Month ESTR Index Future"),
+]
+for c in _contract_types:
+    StateManager.store(IRFutureContractType, c)
+    StateManager.store(InstrumentFamily, IRFutureFamily(exchange=c.get_exchange(), contract_symbol=c.get_symbol()))
 
 #
 # bond conventions

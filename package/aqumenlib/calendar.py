@@ -10,6 +10,7 @@ from aqumenlib.date import Date, DateInput
 from aqumenlib.enums import BusinessDayAdjustment, TimeUnit
 
 from pydantic import BaseModel
+import pydantic
 from pydantic.functional_validators import BeforeValidator
 
 import QuantLib as ql
@@ -79,6 +80,7 @@ def inputconverter_calendar(v: Any) -> Calendar:
 CalendarInput = Annotated[Calendar, BeforeValidator(inputconverter_calendar)]
 
 
+# @pydantic.validate_call
 def add_calendar_days(d: DateInput, ndays: int) -> Date:
     """
     Returns a date that is ndays calendar days away from the input date.
@@ -87,6 +89,7 @@ def add_calendar_days(d: DateInput, ndays: int) -> Date:
     return Date.from_ql(qd + ndays)
 
 
+# @pydantic.validate_call
 def add_business_days(d: DateInput, ndays: int, calendar: Calendar | ql.Calendar) -> Date:
     """
     Returns a date that is ndays business days away from the input date.
@@ -107,6 +110,7 @@ def add_business_days(d: DateInput, ndays: int, calendar: Calendar | ql.Calendar
     return Date.from_ql(ql.Date(nd))
 
 
+# @pydantic.validate_call
 def date_adjust(
     d: DateInput,
     calendar: Calendar | ql.Calendar,
@@ -123,6 +127,7 @@ def date_adjust(
     return Date.from_ql(adj_d)
 
 
+# @pydantic.validate_call
 def date_advance(
     d: DateInput,
     n: int,

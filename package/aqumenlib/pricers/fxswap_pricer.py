@@ -43,7 +43,7 @@ class FXSwapPricer(Pricer, pydantic.BaseModel):
         if self.trade_info.trade_id:
             return self.trade_info.trade_id
         else:
-            return self.swap.name
+            return self.fxswap.name
 
     def value(self) -> Dict[Currency, float]:
         """
@@ -116,7 +116,7 @@ class FXSwapPricer(Pricer, pydantic.BaseModel):
             case Metric.NATIVE_MARKET_VALUE | Metric.NATIVE_MODEL_VALUE:
                 return self.value()
             case Metric.VALUE | Metric.MARKET_VALUE | Metric.MODEL_VALUE | Metric.RISK_VALUE:
-                return [(self.swap.index.currency, self.value())]
+                return self.value()
             case Metric.REPORTING_VALUE | Metric.REPORTING_MARKET_VALUE | Metric.REPORTING_MODEL_VALUE:
                 return self.value_in_ccy(self.get_pricer_settings().reporting_currency)
             case Metric.CURRENCY:

@@ -4,7 +4,11 @@
 Interest Rate Future instruments to be used for calibration
 """
 from typing import Any, Optional, List
-from aqumenlib.instruments.future_contract import futures_symbol_to_month_start, lookup_contract_type
+from aqumenlib.instruments.future_contract import (
+    IRFutureContractType,
+    futures_symbol_to_month_start,
+    lookup_contract_type,
+)
 import pydantic
 import QuantLib as ql
 from aqumenlib import (
@@ -15,9 +19,10 @@ from aqumenlib import (
 from aqumenlib.index import Index
 from aqumenlib.instrument_family import InstrumentFamilyMeta
 from aqumenlib.instruments.rate_family import RateInstrumentFamily
+from aqumenlib.market_util import get_modeled_ql_rate_index
 
 
-class OIFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
+class IRFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
     """
     Overnight Index Interest Rate Future instrument.
     """
@@ -35,6 +40,12 @@ class OIFutureFamily(RateInstrumentFamily, pydantic.BaseModel):
             risk_type=RiskType.RATE,
             asset_class=AssetClass.RATE,
         )
+
+    def get_contract_type(self) -> IRFutureContractType:
+        """
+        Return underlying contract type
+        """
+        return self._contract_type
 
     def specifics_input_process(self, specifics_input: Any) -> Any:
         """

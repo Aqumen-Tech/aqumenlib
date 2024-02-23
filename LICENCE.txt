@@ -3,4 +3,7 @@ See the file package/LICENCE for full licence agreement text: https://github.com
 The short summary is that you are free to use this software for any non-revenue generating activities,
 as well as most types of personal and individual uses. This includes: education, trial, testing, demonstration, and more.
 
-Contact us at solutions@aqumen.io with any questions / requests.
+For production enterprise use, please get in touch with us at solutions@aqumen.io
+Our general policy is to grant licences freely (and free!) but some exceptions may apply.
+
+Contact us at solutions@aqumen.io with any questions.

@@ -13,13 +13,39 @@ from aqumenlib.calendar import date_adjust, date_advance
 from aqumenlib.enums import RateAveraging, BusinessDayAdjustment, TimeUnit
 from aqumenlib.exception import AqumenException
 from aqumenlib import Date, indices
+from aqumenlib.namedobject import NamedObject
+from aqumenlib.state import StateManager
 
 
-class IRFutureContractType(ABC):
+class IRFutureContractType(NamedObject):
     """
     Class that implements various ways of calculating relevant dates
     for futures contracts, given contract month.
     """
+
+    def get_name(self):
+        """
+        Identifier for a contract type
+        """
+        return f"{self.get_exchange()}-{self.get_symbol()}"
+
+    @abstractmethod
+    def get_exchange(self) -> str:
+        """
+        Return traded exchange, e.g. ICE or Eurex
+        """
+
+    @abstractmethod
+    def get_symbol(self) -> str:
+        """
+        Return traded symbol, e.g. SR3
+        """
+
+    @abstractmethod
+    def get_description(self) -> str:
+        """
+        Description of this contract
+        """
 
     @abstractmethod
     def rate_averaging(self) -> RateAveraging:
@@ -54,11 +80,22 @@ class IRFutureContractType(ABC):
 
 class ICESR1FutureContractType(IRFutureContractType):
     """
-    ICE One-Month SOFR Index Future
+    Contracts similar to ICE One-Month SOFR Index Future
     """
 
-    def __init__(self, index) -> None:
+    def __init__(self, index, symbol, description) -> None:
         self.index = index
+        self.contract_symbol = symbol
+        self.get_description = description
+
+    def get_exchange(self) -> str:
+        return "ICE"
+
+    def get_symbol(self) -> str:
+        return self.contract_symbol
+
+    def get_description(self) -> str:
+        return self.get_description
 
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.ARITHMETIC
@@ -80,11 +117,22 @@ class ICESR1FutureContractType(IRFutureContractType):
 
 class ICESR3FutureContractType(IRFutureContractType):
     """
-    ICE Three-Month SOFR Index Future
+    Contracts similar to ICE Three-Month SOFR Index Future
     """
 
-    def __init__(self, index) -> None:
+    def __init__(self, index, symbol, description) -> None:
         self.index = index
+        self.contract_symbol = symbol
+        self.get_description = description
+
+    def get_exchange(self) -> str:
+        return "ICE"
+
+    def get_symbol(self) -> str:
+        return self.contract_symbol
+
+    def get_description(self) -> str:
+        return self.get_description
 
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.GEOMETRIC
@@ -99,22 +147,11 @@ class ICESR3FutureContractType(IRFutureContractType):
     def accrual_end_date(self, contract_month: Date) -> Date:
         d = date_advance(contract_month, 3, TimeUnit.MONTHS)
         d = ql.Date.nthWeekday(3, ql.Wednesday, d.month(), d.year())
-        d = date_adjust(d, self.index.calendar, BusinessDayAdjustment.PRECEDING)
+        d = date_adjust(Date.from_ql(d), self.index.calendar, BusinessDayAdjustment.PRECEDING)
         return d
 
     def last_trading_date(self, contract_month: Date) -> Date:
         return self.accrual_end_date(contract_month)
-
-
-_contract_types = {
-    "ICE-SR1": ICESR1FutureContractType(indices.SOFR),
-    "ICE-SR3": ICESR3FutureContractType(indices.SOFR),
-    "ICE-SOA": ICESR1FutureContractType(indices.SONIA),
-    "ICE-SO3": ICESR3FutureContractType(indices.SONIA),
-    "ICE-SA3": ICESR3FutureContractType(indices.SARON),
-    "ICE-EON": ICESR1FutureContractType(indices.ESTR),
-    "ICE-ER3": ICESR3FutureContractType(indices.ESTR),
-}
 
 
 def lookup_contract_type(exchange: str, contract_symbol: str) -> IRFutureContractType:
@@ -122,9 +159,7 @@ def lookup_contract_type(exchange: str, contract_symbol: str) -> IRFutureContrac
     Return an instance of IRFutureContractType specialized for a given contract type.
     """
     lookup_id = exchange + "-" + contract_symbol
-    if lookup_id not in _contract_types:
-        raise AqumenException(f"Terms for {lookup_id} have not been defined.")
-    return _contract_types[lookup_id]
+    return StateManager.get(IRFutureContractType, lookup_id)
 
 
 # Futures contract month codes to month number mapping
