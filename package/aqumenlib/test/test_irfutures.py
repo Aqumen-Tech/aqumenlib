@@ -4,27 +4,18 @@
 test IR futures pricing and curve building functionality
 """
 
-from typing import List, Optional
-from aqumenlib.instrument import create_instrument
-from aqumenlib.instrument_type import create_instrument_type
-from aqumenlib.market import create_market_view
-from aqumenlib.pricers.irfuture_pricer import IRFuturePricer
 import pytest
-
 from aqumenlib import (
     Date,
     Currency,
-    MarketView,
-    Instrument,
-    QuoteConvention,
     Metric,
     RateInterpolationType,
     TradeInfo,
 )
-from aqumenlib.cashflow import Cashflow
-
-from aqumenlib.pricers.bond_pricer import BondPricer
-from aqumenlib.products.bond import Bond
+from aqumenlib.instrument import create_instrument
+from aqumenlib.instrument_type import create_instrument_type
+from aqumenlib.market import create_market_view
+from aqumenlib.pricers.irfuture_pricer import IRFuturePricer
 from aqumenlib import indices
 from aqumenlib.curves.rate_curve import (
     add_bootstraped_discounting_rate_curve_to_market,
@@ -78,14 +69,11 @@ def test_irfutures():
     pricer_sr1_k25 = IRFuturePricer(
         contract=contract,
         market=market,
-        trade_info=TradeInfo(),
+        trade_info=TradeInfo(amount=5, is_receive=False),
         last_settlement_price=95,
+        market_price=95.7,
     )
-    print("Market value: ", pricer_sr1_k25.market_value())
-    print("Model value: ", pricer_sr1_k25.model_value())
-
-    # v = frn_pricer.calculate(Metric.MODEL_VALUE)
-    # assert v[Currency.USD] == pytest.approx(1e6, abs=100)
-
-
-# test_irfutures()
+    v = pricer_sr1_k25.calculate(Metric.MARKET_VALUE)
+    assert v[Currency.USD] == pytest.approx(-5 * 4167 * 95.7, rel=0.01)
+    v = pricer_sr1_k25.calculate(Metric.MODEL_VALUE)
+    assert v[Currency.USD] == pytest.approx(-5 * 4167 * 95.7, rel=0.01)

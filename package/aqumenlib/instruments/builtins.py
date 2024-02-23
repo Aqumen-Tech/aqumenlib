@@ -136,13 +136,13 @@ for swap_family in basis_swap_families:
 #
 
 _contract_types = [
-    ICESR1FutureContractType(indices.SOFR, "SR1", "ICE One-Month SOFR Index Future"),
-    ICESR3FutureContractType(indices.SOFR, "SR3", "ICE Three-Month SOFR Index Future"),
-    ICESR1FutureContractType(indices.SONIA, "SOA", "ICE Three-Month SONIA Index Future"),
-    ICESR3FutureContractType(indices.SONIA, "SO3", "ICE Three-Month SONIA Index Future"),
-    ICESR3FutureContractType(indices.SARON, "SA3", "ICE Three-Month SARON Index Future"),
-    ICESR1FutureContractType(indices.ESTR, "EON", "ICE One-Month ESTR Index Future"),
-    ICESR3FutureContractType(indices.ESTR, "ER3", "ICE Three-Month ESTR Index Future"),
+    ICESR1FutureContractType(indices.SOFR, "SR1", 4167, "ICE One-Month SOFR Index Future"),
+    ICESR3FutureContractType(indices.SOFR, "SR3", 2500, "ICE Three-Month SOFR Index Future"),
+    ICESR1FutureContractType(indices.SONIA, "SOA", 2500, "ICE Three-Month SONIA Index Future"),
+    ICESR3FutureContractType(indices.SONIA, "SO3", 2500, "ICE Three-Month SONIA Index Future"),
+    ICESR3FutureContractType(indices.SARON, "SA3", 2500, "ICE Three-Month SARON Index Future"),
+    ICESR1FutureContractType(indices.ESTR, "EON", 2500, "ICE One-Month ESTR Index Future"),
+    ICESR3FutureContractType(indices.ESTR, "ER3", 2500, "ICE Three-Month ESTR Index Future"),
 ]
 for c in _contract_types:
     StateManager.store(IRFutureContractType, c)

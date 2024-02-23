@@ -62,30 +62,37 @@ class IRFuturePricer(Pricer, pydantic.BaseModel):
         Valuation in each currency of the cash flows.
         """
         fut_ccy = self.contract.family.get_meta().currency
-        return {fut_ccy: self._ql_future.NPV() * self._pay_rec}
+        sz = self.contract.family.get_contract_type().get_contract_size()
+        v = self._ql_future.NPV() * self._pay_rec * self.trade_info.amount * sz
+        return {fut_ccy: v}
 
     def market_value(self) -> Dict[Currency, float]:
         """
         Valuation in each currency of the cash flows.
         """
-        fut_ccy = self.contract.family.get_meta().currency
         if self.market_price is None:
             return "N/A"
-        else:
-            return {fut_ccy: self.market_price * self._pay_rec}
+        fut_ccy = self.contract.family.get_meta().currency
+        sz = self.contract.family.get_contract_type().get_contract_size()
+        v = self.market_price * self._pay_rec * self.trade_info.amount * sz
+        return {fut_ccy: v}
 
     def calculate(self, metric: Metric) -> Any:
         self.market.ql_set_pricing_date()
+        fut_ccy = self.contract.family.get_meta().currency
         match metric:
-            case Metric.NATIVE_MARKET_VALUE | Metric.NATIVE_MODEL_VALUE:
+            case Metric.NATIVE_MARKET_VALUE:
+                return self.market_value()[fut_ccy]
+            case Metric.MARKET_VALUE:
                 return self.market_value()
-            case Metric.VALUE | Metric.MARKET_VALUE | Metric.MODEL_VALUE | Metric.RISK_VALUE:
+            case Metric.NATIVE_MODEL_VALUE:
+                return self.model_value()[fut_ccy]
+            case Metric.VALUE | Metric.MODEL_VALUE | Metric.RISK_VALUE:
                 return self.model_value()
-            case Metric.REPORTING_VALUE | Metric.REPORTING_MARKET_VALUE | Metric.REPORTING_MODEL_VALUE:
+            case Metric.REPORTING_VALUE | Metric.REPORTING_MODEL_VALUE:
                 ccy = self.get_pricer_settings().reporting_currency
-                fut_ccy = self.contract.family.get_meta().currency
                 fx = self.market.get_spot_FX(fut_ccy, ccy)
-                v = self.model_value()
+                v = self.model_value()[fut_ccy]
                 return v / fx
             case Metric.CURRENCY:
                 return self.contract.family.get_meta().currency

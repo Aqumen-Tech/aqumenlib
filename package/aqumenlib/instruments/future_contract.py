@@ -48,6 +48,12 @@ class IRFutureContractType(NamedObject):
         """
 
     @abstractmethod
+    def get_contract_size(self) -> float:
+        """
+        Contract size
+        """
+
+    @abstractmethod
     def rate_averaging(self) -> RateAveraging:
         """
         Returns rate averaging type of this contract type.
@@ -83,10 +89,11 @@ class ICESR1FutureContractType(IRFutureContractType):
     Contracts similar to ICE One-Month SOFR Index Future
     """
 
-    def __init__(self, index, symbol, description) -> None:
+    def __init__(self, index, symbol, size, description) -> None:
         self.index = index
         self.contract_symbol = symbol
         self.get_description = description
+        self.size = size
 
     def get_exchange(self) -> str:
         return "ICE"
@@ -96,6 +103,9 @@ class ICESR1FutureContractType(IRFutureContractType):
 
     def get_description(self) -> str:
         return self.get_description
+
+    def get_contract_size(self) -> float:
+        return self.size
 
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.ARITHMETIC
@@ -120,10 +130,11 @@ class ICESR3FutureContractType(IRFutureContractType):
     Contracts similar to ICE Three-Month SOFR Index Future
     """
 
-    def __init__(self, index, symbol, description) -> None:
+    def __init__(self, index, symbol, size, description) -> None:
         self.index = index
         self.contract_symbol = symbol
         self.get_description = description
+        self.size = size
 
     def get_exchange(self) -> str:
         return "ICE"
@@ -133,6 +144,9 @@ class ICESR3FutureContractType(IRFutureContractType):
 
     def get_description(self) -> str:
         return self.get_description
+
+    def get_contract_size(self) -> float:
+        return self.size
 
     def rate_averaging(self) -> RateAveraging:
         return RateAveraging.GEOMETRIC
