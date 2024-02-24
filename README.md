@@ -3,22 +3,23 @@
 ### Motivation
 
 AQUMEN is intended to make it easy to integrate financial analytics with other systems and solutions.
-The typical user is a developer who need pricing and risk engine for derivatives and fixed income
+The typical user is a developer who needs pricing and risk engine for derivatives and fixed income
 instruments, but does not want to spend a great deal of time learning the low level
-financial framework. 
+financial frameworks. 
 
 As such, the focus is on ease of use and ease of intergration. Under the hood, QuantLib is used
 extensively for the underlying mathematical underpinning of the pricing models.
 
 Some of key features of the framework are:
 
+- Convenient one-line calculators for risks (both market sensitivy and scenario analysis)
 - Serialization of all objects so that pricers or models can be saved as JSON objects and reconstructed elsewhere
 - Built-in instrument symbology and a data model that naturally maps to that of market data vendors
 - Built-in standard market conventions for a variety of commonly traded markets
 - Support for concepts like trade, product, security, position, pricer, etc - which typically exist in systems but not in quant libraries
 - Blotter-friendly pricers wtih universally consistent result types
 - Ease of setting up CSA-differentiated discounting models
-- Instrument classification and convenient one-line calculators for risks (both sensitivy and scenario driven)
+- Instrument classification that allows for result labeling and filtering
 
 
 ### Installation

@@ -13,7 +13,6 @@ from aqumenlib import (
     Date,
     Frequency,
     BusinessDayAdjustment,
-    MarketView,
     QuoteConvention,
     QuoteBumpType,
     RateInterpolationType,
@@ -24,6 +23,7 @@ from aqumenlib import (
 from aqumenlib import indices
 from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
+from aqumenlib.market import create_market_view
 from aqumenlib.pricers.bond_pricer import BondPricer
 from aqumenlib.instrument import create_instrument
 from aqumenlib.products.bond import Bond
@@ -49,7 +49,7 @@ except ImportError:
 
 # %%
 pricing_date = Date.from_any("2023-11-17")
-market = MarketView(name="Demo model", pricing_date=pricing_date)
+market = create_market_view(pricing_date)
 
 
 # %% [markdown]

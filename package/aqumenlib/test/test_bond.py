@@ -5,7 +5,6 @@ test bond functionality
 """
 
 from typing import List, Optional
-from aqumenlib.instrument import create_instrument
 import pytest
 
 from aqumenlib import (
@@ -18,11 +17,12 @@ from aqumenlib import (
     RateInterpolationType,
     TradeInfo,
 )
+from aqumenlib import indices
+from aqumenlib.instrument import create_instrument
 from aqumenlib.cashflow import Cashflow
 
 from aqumenlib.pricers.bond_pricer import BondPricer
 from aqumenlib.products.bond import Bond
-from aqumenlib import indices
 from aqumenlib.curves.rate_curve import (
     add_bootstraped_discounting_rate_curve_to_market,
 )
