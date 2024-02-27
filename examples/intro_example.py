@@ -150,6 +150,7 @@ do_display(c.to_dataframe())
 risk_ladder = calculate_market_risk([ust_pricer])
 do_display(risk_ladder.to_dataframe())
 
+print(risk_ladder.to_dataframe().to_markdown())
 
 # %% [markdown]
 # ## Scenario Analysis

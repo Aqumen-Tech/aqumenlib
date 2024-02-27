@@ -1,14 +1,15 @@
 ## Getting started with AQumen SDK
 
 In this guide we will cover the very basics of how the code
-is structured and which concepts are used to get to pricing and risk metrics.
+is structured and which concepts are used to get to pricing
+and risk metrics.
 We will use a simple bond pricing example which will be sufficient
 to introduce the key concepts and how they work together. That should
 equip you with the insight necessary to dive into the code and figure
 out the rest. While a couple of basic exapmles are included at the 
 top level as Jupyter notebooks, many of the test files act as examples
-as well, and therefore that is a good place to look after you are finished 
-with this tutorial.
+as well, and therefore that is a good place to look after you are 
+finished with this tutorial.
 
 The tutorial is broken into 4 main parts covering modeling the market,
 managing market conventions and instrument definitions,
@@ -55,7 +56,8 @@ You will notice that we provide a convenience class called Date that
 simplifies a lot of the date manipulation that one has to perform when
 dealing with instrument pricing. Among other tools, it provides conversions
 from and to QuantLib dates, Excel dates, Python dates as well as a few human
-readable date representations, like ISO strings or integers that mimic them (e.g. 20231117).
+readable date representations, like ISO strings or integers that
+mimic them (e.g. 20231117).
 Note that evaluation date is part of the market view as well.
 
 The view itself can be created directly by constructing MarketView class,
@@ -171,8 +173,71 @@ print(f"Dirty: {ust_pricer.dirty_price()}")
 
 ### Risk, scenario analysis and beyond
 
+This is perhaps where the power of AQumen SDK is most obvious.
+Because InstrumentFamily objects capture rich meta-data information
+about the instruments, and because MarketView keeps track of dependencies
+between curves and instruments, to compute market sensitivities
+the user does not need to supply any more information or logic,
+this important market risk calculation can be performed with just one
+line of code:
+
+```
+risk_ladder = calculate_market_risk([ust_pricer])
+```
+
+The outpout is an object that can be readily converted to pandas DataFrame
+using to_dataframe() method. It produces tabular output similar to this:
+
+|    | Risk Currency   | Instrument    |    Risk | Family    | Specifics   | Instr Ccy   |   Quote | Asset Class   | Risk Class   |      Time |
+|---:|:----------------|:--------------|--------:|:----------|:------------|:------------|--------:|:--------------|:-------------|----------:|
+|  3 | USD             | IRS-SOFR-1Y   | -905865 | IRS-SOFR  | 1Y          | USD         |   0.045 | RATE          | RATE         |  1.0137   |
+|  4 | USD             | IRS-SOFR-5Y   |       0 | IRS-SOFR  | 5Y          | USD         |   0.052 | RATE          | RATE         |  5.01644  |
+|  5 | USD             | IRS-SOFR-30Y  |       0 | IRS-SOFR  | 30Y         | USD         |   0.057 | RATE          | RATE         | 30.0329   |
+|  0 | USD             | IRS-SONIA-3M  |       0 | IRS-SONIA | 3M          | GBP         |   0.052 | RATE          | RATE         |  0.260274 |
+|  1 | USD             | IRS-SONIA-1Y  |       0 | IRS-SONIA | 1Y          | GBP         |   0.05  | RATE          | RATE         |  1.01096  |
+|  2 | USD             | IRS-SONIA-10Y |       0 | IRS-SONIA | 10Y         | GBP         |   0.043 | RATE          | RATE         | 10.0192   |
 
 
+Note that instruments have classifications and also are labelled with their
+pillar information, so that time bucketing becomes easy for the consumer.
+
+For the same reasons, scenario analysis is handled by defining scenario
+objects that apply to instruments by matching them on any of the available meta-data,
+including pillar time, and then applying arbitrary functions or shifts
+to associated quotes. Once done, a new MarketView object is produced where
+the affected curves are rebuilt, at which point you can re-calculate any metrics
+as desired:
+
+```
+scenario = create_adjust_quotes_scenario(
+    name="Demo Scenario",
+    adjustment_type=QuoteBumpType.ABSOLUTE,
+    adjustment_value=-0.01,
+    filter_risk_type=RiskType.RATE,
+)
+scenario_market = scenario.create_market(market)
+scenario_pricer = ust_pricer.new_pricer_for_market(scenario_market)
+
+print(f"Baseline model value: {ust_pricer.model_value():,.2f}")
+print(f"Scenario model value: {scenario_pricer.model_value():,.2f}")
+```
+
+To change quotes using arbitrary function as opposed to fixed shift,
+use the function create_curve_shape_scenario.
+
+Other utility functions that may be useful are 
+calculate_scenario_impact and combine_scenario_results. 
 
 
+### Moving beyond this tutorial
+
+Take a look at the examples folder at the top level of the GitHub repo
+for runnable Jupyter notebooks.
+
+Then jump to test folder under package/aqumenlib/ as many tests are written
+in a style that makes them useful as examples or snippets.
+
+Since all of aqumenlib is open source, you are free to navigate around
+the code from there, learn about the rest of the structure,
+and build your own things where you desire!
 
