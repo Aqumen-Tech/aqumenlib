@@ -27,7 +27,7 @@ def test_irfutures():
     Test IR Futures
     """
     pricing_date = Date.from_ymd(2025, 1, 27)
-    market = create_market_view("test market", pricing_date)
+    market = create_market_view(pricing_date)
     sofr_curve = add_bootstraped_discounting_rate_curve_to_market(
         name="SOFR Curve",
         market=market,

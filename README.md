@@ -22,6 +22,12 @@ Some of key features of the framework are:
 - Instrument classification that allows for result labeling and filtering
 
 
+### Getting started
+
+See below for installation instructions. 
+
+See TUTORIAL.md for a quick introduction to the structure of this SDK.
+
 ### Installation
 
 Typical steps to install AQUMEN SDK are:
