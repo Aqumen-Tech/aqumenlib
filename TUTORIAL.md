@@ -1,8 +1,12 @@
 ## Getting started with AQumen SDK
 
-In this guide we will cover the very basics of how the code
-is structured and which concepts are used to get to pricing
-and risk metrics.
+In this guide we will cover the all basics that should allow one
+to understand which concepts are used to get to pricing
+and risk metrics in AQumen SDK. We assume that you have
+already followed the installation instructions from the main
+README, and that you are comfortable with Python 
+as well as financial terminology.
+
 We will use a simple bond pricing example which will be sufficient
 to introduce the key concepts and how they work together. That should
 equip you with the insight necessary to dive into the code and figure
@@ -29,7 +33,7 @@ The motivation for aggregating this information in a MarketView
 is that it makes subsequent pricing setup much easier for the user,
 because once the product is defined, it becomes possible to automatically
 pick out the right modeling pieces our of the MarketView, leaving
-users with a very simple setup.
+users with a very simple interface.
 
 So let us look at how one can create a MarketView capable of
 pricing fixed income and interest rate trades that only depend
@@ -61,13 +65,14 @@ mimic them (e.g. 20231117).
 Note that evaluation date is part of the market view as well.
 
 The view itself can be created directly by constructing MarketView class,
-or by using a utility create_market_view(). Pydantic is used throughout
+or by using a utility create_market_view().
+[Pydantic](https://docs.pydantic.dev/latest/) is used throughout
 the library and most classes are Pydantic data classes. This allows for extensive
-data validation and also makes all AQumen objects fully serialization to JSON.
+data validation and also makes all AQumen objects fully serializable to JSON.
 
 Pydantic also allows us to make  the functions API highly flexible in terms of
 input, and perform necessary conversions on the fly. For example, we did not
-have to pass in a fully Date object to create_market_view function, and we could
+have to pass in a fully formed Date object to create_market_view function, and we could
 instead write this:
 
 
@@ -75,7 +80,7 @@ instead write this:
 market = create_market_view("2023-11-17")
 ```
 
-Next thing one needs to to model discounting and perhaps some indices
+Next thing one needs to do is model the discounting rates and perhaps some indices
 to be projected. In our simple case, we want to use only SONIA index
 and use it for discounting as well. A single curve bootstrap like this
 in AQumen would normally be handled by a single function
@@ -92,11 +97,11 @@ that maps to tickers typically found in market data providers like
 Bloomberg or Refinitiv - .e.g . "IRS-SONIA-1Y" refers to an interest
 rate swap (in this case OIS) with a tenor of 1Y and underlying 
 SONIA rate. To see other built-in instruments, you can use
-list_objects() functions; and adding more built-in instruments
+list_objects() function; and adding more built-in instruments
 is straightforward as well.
 
 The structure behind instruments is layered, with most functionality
-encapsulated in InstrumentFamily class hierarchy which
+encapsulated in InstrumentFamily class hierarchy where each subclass
 represents a family of instruments, such as all SOA futures or
 all fixed-floating SONIA swaps. By combining them with maturity
 information, such as 1Y or M25, you get an InstrumentType.
@@ -104,7 +109,7 @@ When you add an actual quote, Instrument object is created which
 is ready to be used in curve calibrations.
 
 As with MarketView, utility function create_instrument()
-can perform necessary conversions, look up built in instruments
+can perform necessary conversions, look up built-in instruments
 or use the instrument object directly. For example, these 
 ways of creating an instrument are all valid:
 
@@ -153,14 +158,14 @@ ust_example = Bond(
     coupon=0.05,
 )
 
-trade_info=TradeInfo(amount=1_000_000, is_receive=True) 
+trade_info = TradeInfo(amount=1_000_000, is_receive=True)
 
 ust_pricer = BondPricer(
     bond=ust_example,
     market=market,
     quote=0.0525,
     quote_convention=QuoteConvention.Yield,
-    trade_info=TradeInfo(amount=1_000_000),
+    trade_info=trade_info,
 )
 
 print(f"Value: {ust_pricer.value():,.2f}")
@@ -177,7 +182,7 @@ This is perhaps where the power of AQumen SDK is most obvious.
 Because InstrumentFamily objects capture rich meta-data information
 about the instruments, and because MarketView keeps track of dependencies
 between curves and instruments, to compute market sensitivities
-the user does not need to supply any more information or logic,
+the user does not need to supply any more information or logic, so that
 this important market risk calculation can be performed with just one
 line of code:
 
@@ -199,9 +204,9 @@ using to_dataframe() method. It produces tabular output similar to this:
 
 
 Note that instruments have classifications and also are labelled with their
-pillar information, so that time bucketing becomes easy for the consumer.
+pillar information, so that time bucketing becomes easy for the user.
 
-For the same reasons, scenario analysis is handled by defining scenario
+Similarly, scenario analysis is handled by defining scenario
 objects that apply to instruments by matching them on any of the available meta-data,
 including pillar time, and then applying arbitrary functions or shifts
 to associated quotes. Once done, a new MarketView object is produced where

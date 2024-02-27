@@ -117,15 +117,14 @@ ust_example = Bond(
     coupon=0.05,
 )
 
-trade_info = (TradeInfo(amount=1_000_000, is_receive=True),)
-
+trade_info = TradeInfo(amount=1_000_000, is_receive=True)
 
 ust_pricer = BondPricer(
     bond=ust_example,
     market=market,
     quote=0.0525,
     quote_convention=QuoteConvention.Yield,
-    trade_info=TradeInfo(amount=1_000_000),
+    trade_info=trade_info,
 )
 
 print(f"Value: {ust_pricer.value():,.2f}")
@@ -149,8 +148,6 @@ do_display(c.to_dataframe())
 # %%
 risk_ladder = calculate_market_risk([ust_pricer])
 do_display(risk_ladder.to_dataframe())
-
-print(risk_ladder.to_dataframe().to_markdown())
 
 # %% [markdown]
 # ## Scenario Analysis
