@@ -3,7 +3,7 @@ name = "aqumenlib"
 description = "AQUMEN SDK"
 readme = "README.md"
 authors = [
-    { name = "Aqumen Technology Solutions Ltd", email = "denys@aqumen.io" }
+    { name = "Denys Usynin", email = "denys@aqumen.io" }
 ]
 license = { file = "LICENCE" }
 dependencies = [
@@ -14,11 +14,11 @@ dependencies = [
   "peewee",
   "pytest",
 ]
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">= 3.11"
 
 [project.urls]
-Homepage = "https://aqumen.io"
+Homepage = "https://github.com/Aqumen-Tech/aqumenlib"
 
 [build-system]
 requires = ["hatchling"]
