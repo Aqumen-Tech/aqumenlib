@@ -10,6 +10,13 @@ top level as Jupyter notebooks, many of the test files act as examples
 as well, and therefore that is a good place to look after you are finished 
 with this tutorial.
 
+The tutorial is broken into 4 main parts covering modeling the market,
+managing market conventions and instrument definitions,
+describing trades and pricers, and finally dealing with risk and other
+higher level calculations.
+
+### Modeling the market
+
 Before you can value trades and securities, you need to model
 the market in some way. Like most modern quant frameworks,
 AQumen uses an object that collects and encapsulates as much of
@@ -36,7 +43,7 @@ sonia_curve = add_bootstraped_discounting_rate_curve_to_market(
     market=market,
     rate_index=indices.SONIA,
     instruments=[
-        create_instrument("IRS-SONIA-3M", 0.052),
+        create_instrument(("FUT-ICE-SOA","G25"), 95.2),
         create_instrument("IRS-SONIA-1Y", 0.05),
         create_instrument("IRS-SONIA-10Y", 0.043),
     ],
@@ -74,6 +81,8 @@ that takes in the instruments to be used in calibration and some
 parameters, such as interpolation method which you can pick out
 from an enum.
 
+### Instruments and market conventions
+
 You will see that AQumen strives to provide most standard market
 conventions as pre-built objects - so that you can use shorthands
 like indices.SONIA and refer to instruments by using symbology
@@ -83,4 +92,87 @@ rate swap (in this case OIS) with a tenor of 1Y and underlying
 SONIA rate. To see other built-in instruments, you can use
 list_objects() functions; and adding more built-in instruments
 is straightforward as well.
+
+The structure behind instruments is layered, with most functionality
+encapsulated in InstrumentFamily class hierarchy which
+represents a family of instruments, such as all SOA futures or
+all fixed-floating SONIA swaps. By combining them with maturity
+information, such as 1Y or M25, you get an InstrumentType.
+When you add an actual quote, Instrument object is created which
+is ready to be used in curve calibrations.
+
+As with MarketView, utility function create_instrument()
+can perform necessary conversions, look up built in instruments
+or use the instrument object directly. For example, these 
+ways of creating an instrument are all valid:
+
+```
+create_instrument("IRS-SONIA-1Y", 0.05),
+create_instrument(("IRS-SONIA","1Y"), 0.05),
+
+sonia_ois_family = IRSwapFamily( ... )
+create_instrument((sonia_ois_family,"1Y"), 0.05),
+
+sonia_ois_1y = InstrumentType(family=sonia_ois_family, specifics="1Y")
+create_instrument(sonia_ois_1y, 0.05),
+```
+
+as well as creating Instrument class objects directly, of course.
+
+### Products, trades and pricers
+
+AQumen understands and models concepts such as securities, products,
+trades and pricers. 
+
+The fundamental structure is that first you define a product, which represents
+something that can be repeatedly bought or sold. Aforementioned 1Y SONIA swap
+is one example of such product, as well as any security, such as a particular issue
+of a goverment bond. It is appropriate to blend product and security into
+a single concept within software, since many institutions would treat products and securities
+in the same way, often going through explicit securitization process for the products.
+
+Once product is defined, many trades can be created on it using TradeInfo object.
+This also captures counterparty information, such as any CSA attached, which in turn
+will affect pricing.
+
+Finally, pricer is created to perform actual calculations. 
+Pricers are often trivial to create, since unless security-specific  market
+information is needed for the pricer, all that you need for valuation is
+already contained in the trade and MarketView. 
+
+This is an example of pricing a bond using above concepts:
+
+```
+ust_example = Bond(
+    name="Treasury Bond Demo",
+    bond_type="Govt-USA",
+    effective=Date.from_any("2021-10-25"),
+    maturity=Date.from_any("2024-10-25"),
+    coupon=0.05,
+)
+
+trade_info=TradeInfo(amount=1_000_000, is_receive=True) 
+
+ust_pricer = BondPricer(
+    bond=ust_example,
+    market=market,
+    quote=0.0525,
+    quote_convention=QuoteConvention.Yield,
+    trade_info=TradeInfo(amount=1_000_000),
+)
+
+print(f"Value: {ust_pricer.value():,.2f}")
+print(f"Yield: {ust_pricer.standard_yield()}")
+print(f"IRR: {ust_pricer.irr()}")
+print(f"Clean: {ust_pricer.clean_price()}")
+print(f"Dirty: {ust_pricer.dirty_price()}")
+
+```
+
+### Risk, scenario analysis and beyond
+
+
+
+
+
 

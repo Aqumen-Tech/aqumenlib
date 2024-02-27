@@ -116,6 +116,10 @@ ust_example = Bond(
     maturity=Date.from_any("2024-10-25"),
     coupon=0.05,
 )
+
+trade_info = (TradeInfo(amount=1_000_000, is_receive=True),)
+
+
 ust_pricer = BondPricer(
     bond=ust_example,
     market=market,
