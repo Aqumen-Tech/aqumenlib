@@ -36,4 +36,5 @@ jobs:
         pytest
     - name: Run examples
       run: |
-        python examples/*.py
+      python examples/intro_example.py
+      python examples/xccy_csa_example.py
