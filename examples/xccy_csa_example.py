@@ -219,7 +219,7 @@ for i in [1, 3, 6, 9, 12, 24, 36, 5 * 12, 10 * 12, 30 * 12]:
 import pandas as pd
 
 df = pd.DataFrame(rates_for_df)
-display(df)
+do_display(df)
 
 
 # %%
