@@ -82,7 +82,7 @@ def test_date_converter():
         assert d.to_ql() == ql.Date(21, 8, 2023)
 
 
-def test_date_manipulations():
+def test_date_additions():
     """
     Test date add functionality.
     """
@@ -125,7 +125,7 @@ def test_futures_code_conversion():
     assert futures_symbol_to_month_start("Z30") == Date.from_ymd(2030, 12, 1)
 
 
-def test_dat_manipulations():
+def test_date_manipulations():
     """
     Test end of month method.
     """
@@ -134,3 +134,25 @@ def test_dat_manipulations():
     assert date_adjust(Date.from_ymd(2024, 2, 3), ql.UnitedKingdom(), BusinessDayAdjustment.PRECEDING) == Date.from_ymd(
         2024, 2, 2
     )
+
+
+def test_date_operators():
+    """
+    Test for operator overloading
+    """
+    d1 = Date.from_ymd(2025, 1, 15)
+    d2 = Date.from_ymd(2025, 1, 17)
+    delta = datetime.timedelta(days=2)
+    assert d2 > d1
+    assert d1 < d2
+    assert d2 >= d1
+    assert d1 <= d2
+    assert d1 != d2
+    assert d1 == Date.from_ymd(2025, 1, 15)
+    assert d2 - d1 == delta
+    assert d1 + 2 == d2
+    assert 2 + d1 == d2
+    assert d2 - 2 == d1
+    assert d1 + delta == d2
+    assert delta + d1 == d2
+    assert d2 - delta == d1

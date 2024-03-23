@@ -142,7 +142,7 @@ curve_bbsw3m = add_bootstraped_rate_curve_to_market(
 
 
 # %% [markdown]
-# ## Modeling FX-driven AUD discounting curve
+# ## Modeling FX-driven discounting curve
 #
 # As discussed above, trades funded by raising money in EUR/AUD FX markets and collaterizing
 # in EUR should be valued with an effective AUD discounting curve derived off the EUR rates

@@ -62,6 +62,7 @@ sonia_curve = add_bootstraped_discounting_rate_curve_to_market(
     market=market,
     rate_index=indices.SONIA,
     instruments=[
+        create_instrument(("FUT-ICE-SO3", "Z24"), 95.0),
         create_instrument("IRS-SONIA-3M", 0.052),
         create_instrument("IRS-SONIA-1Y", 0.05),
         create_instrument("IRS-SONIA-10Y", 0.043),

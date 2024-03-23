@@ -7,6 +7,7 @@ Date class
 import datetime
 from typing import Any, Self
 from typing_extensions import Annotated
+from aqumenlib.exception import AqumenException
 
 from pydantic import BaseModel
 from pydantic import ValidationError
@@ -60,17 +61,57 @@ class Date(BaseModel):
     def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.internal_isoint < other.internal_isoint
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.internal_isoint <= other.internal_isoint
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.internal_isoint > other.internal_isoint
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.internal_isoint >= other.internal_isoint
+
+    def _advance(self, delta: int | datetime.timedelta, dir_mult: int) -> Self:
+        """
+        Utility used internally for addition / subtraction of days.
+        Moves the date by number of days specified in delta and returns a new date.
+        Direction and step can be additionally modified by
+        multiplier input dir_mult (which normally would be +1 or -1).
+        """
+        try:
+            if isinstance(delta, datetime.timedelta):
+                days = delta.days * dir_mult
+            else:
+                days = int(delta * dir_mult)
+        except (ValueError, TypeError):
+            return NotImplemented
+        x = self.to_excel()
+        return Date.from_excel(x + days)
+
+    def __add__(self, other) -> Self:
+        return self._advance(other, +1)
+
+    def __radd__(self, other) -> Self:
+        return self._advance(other, +1)
+
+    def __sub__(self, other) -> Self | datetime.timedelta:
+        if isinstance(other, Date):
+            diff = self.to_excel() - other.to_excel()
+            return datetime.timedelta(days=diff)
+        else:
+            return self._advance(other, -1)
+
+    def __iadd__(self, other) -> Self:
+        new_dt = self._advance(other, +1)
+        self.internal_isoint = new_dt.internal_isoint
+        return self
+
+    def __isub__(self, other) -> Self:
+        new_dt = self._advance(other, -1)
+        self.internal_isoint = new_dt.internal_isoint
+        return self
 
     @classmethod
     def today(cls) -> Self:
@@ -142,6 +183,10 @@ class Date(BaseModel):
 
     @classmethod
     def end_of_month(cls, d: Self) -> Self:
+        """
+        Construct a Date object that corresponds to the last day
+        in the same year and month as the provided date.
+        """
         return Date.from_ql(ql.Date.endOfMonth(d.to_ql()))
 
     def to_py(self) -> datetime.date:

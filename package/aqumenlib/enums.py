@@ -159,15 +159,14 @@ class Metric(Enum):
     taken directly from the market quotes - such as current quote for a
     given bond or futures contract. Model value means that market quotes
     are ignored for a security, i.e. a bond would be valued by discounting
-    its cash flows with rate and credit curves, futures might be interpolated
-    from a forward curves, etc. If a VALUE request is prefixed with NATIVE
+    its cash flows with rate and credit curves, futures prices might be interpolated
+    from forward curves, etc. If a VALUE request is prefixed with NATIVE
     it means that if the product has single native currency, the result
     will be a single number representing value in that currency. REPORTING
     values use the reporting currency setting to convert all valuations
     into single reporting currency. VALUE requests that are not prefixed
     with either NATIVE or REPORTING return a list of tuples of currency and value
     pairs, so that for multi-currency products value in each currency can be obtained.
-
     """
 
     VALUE = auto()
