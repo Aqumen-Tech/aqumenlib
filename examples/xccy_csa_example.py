@@ -59,7 +59,7 @@ try:
 
     do_display = display
 except ImportError:
-    do_display = do_display
+    do_display = print
 
 
 # %% [markdown]
