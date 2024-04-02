@@ -24,9 +24,9 @@ from aqumenlib import indices
 from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
 from aqumenlib.market import create_market_view
+from aqumenlib.products.bond import Bond
 from aqumenlib.pricers.bond_pricer import BondPricer
 from aqumenlib.instrument import create_instrument
-from aqumenlib.products.bond import Bond
 from aqumenlib.risk import calculate_market_risk
 from aqumenlib.scenario import create_adjust_quotes_scenario
 from aqumenlib.curves.rate_curve import (

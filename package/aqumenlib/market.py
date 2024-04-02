@@ -99,12 +99,12 @@ class MarketView(pydantic.BaseModel):
         Add discount curve for a given currency.
         """
         df_id = currency_or_csa.name if isinstance(currency_or_csa, Currency) else currency_or_csa
-        if df_id in self.discount_curves:
-            raise AqumenException(f"{curve.get_name()}: DF curve already exists in this market.")
+        # if df_id in self.discount_curves:
+        #     raise AqumenException(f"{curve.get_name()}: DF curve already exists in this market.")
         self.discount_curves[df_id] = curve
         #
-        if curve.get_name() in self.all_curves and curve != self.all_curves[curve.get_name()]:
-            raise AqumenException(f"{curve.get_name()}: curve already exists in this market.")
+        # if curve.get_name() in self.all_curves and curve != self.all_curves[curve.get_name()]:
+        #     raise AqumenException(f"{curve.get_name()}: curve already exists in this market.")
         self.all_curves[curve.get_name()] = curve
 
     def get_discounting_curve(self, currency: Currency, csa_id: Optional[str] = None) -> Curve:
@@ -130,8 +130,8 @@ class MarketView(pydantic.BaseModel):
         """
         Add curve for a given index.
         """
-        if index.get_name() in self.index_curves:
-            raise AqumenException(f"{curve.get_name()}: index curve already exists in this market.")
+        # if index.get_name() in self.index_curves:
+        #     raise AqumenException(f"{curve.get_name()}: index curve already exists in this market.")
         self.index_curves[index.get_name()] = curve
         if curve.get_name() in self.all_curves and curve != self.all_curves[curve.get_name()]:
             raise AqumenException(f"{curve.get_name()}: curve already exists in this market.")
@@ -175,9 +175,9 @@ class MarketView(pydantic.BaseModel):
                 return triangulated_rate
         raise KeyError(f"Market does not contain exchange rate information for {ccy1.name}{ccy2.name}")
 
-    def get_fwd_FX(
+    def get_fwd_FX(  # pylint: disable=invalid-name
         self, fwd_date: Date, ccy1: Currency, ccy2: Currency, csa: Optional[str] = None
-    ) -> float:  # pylint: disable=invalid-name
+    ) -> float:
         """
         Returns forward FX rate, performing triangulation or inversion if necessary.
 
