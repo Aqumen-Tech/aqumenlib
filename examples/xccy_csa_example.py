@@ -34,11 +34,7 @@ from aqumenlib import (
     Date,
     Frequency,
     BusinessDayAdjustment,
-    QuoteConvention,
-    QuoteBumpType,
     RateInterpolationType,
-    RiskType,
-    Metric,
     TradeInfo,
     Currency,
     MarketView,
@@ -46,7 +42,6 @@ from aqumenlib import (
 from aqumenlib import indices
 from aqumenlib.calendar import Calendar
 from aqumenlib.daycount import DayCount
-from aqumenlib.pricers.bond_pricer import BondPricer
 from aqumenlib.instrument import create_instrument
 from aqumenlib.instruments.fxswap_family import FXSwapFamily
 from aqumenlib.instruments.xccy_family import CrossCurrencySwapFamily
@@ -58,14 +53,13 @@ from aqumenlib.curves.rate_curve import (
 )
 from aqumenlib.pricers.irs_pricer import InterestRateSwapPricer
 from aqumenlib.products.irs import InterestRateSwap
-from aqumenlib.schema import quote_db
 
 try:
     from IPython.display import display
 
     do_display = display
 except ImportError:
-    do_display = print
+    do_display = do_display
 
 
 # %% [markdown]
@@ -189,7 +183,7 @@ curve_aud_x = add_bootstraped_xccy_discounting_curve_to_market(
 # %% [markdown]
 # ## Checking the resulting curves
 #
-# Let us print the zero rates on all the resulting curves, which highlights the difference
+# Let us do_display the zero rates on all the resulting curves, which highlights the difference
 # between the native discount curve in AUD and the one built using FX instruments.
 #
 # We also output the implied forward FX curves, one constructed from the domestic AUD discont curve
@@ -223,9 +217,9 @@ do_display(df)
 
 
 # %%
-print("Market instruments:")
+do_display("Market instruments:")
 for k, v in market.get_instrument_map().items():
-    print(v.short_str())
+    do_display(v.short_str())
 
 # %% [markdown]
 # ## Swap pricing - DOMESTIC
@@ -253,8 +247,8 @@ dom_pricer = InterestRateSwapPricer(
     trade_info=TradeInfo(trade_id="AUD domestic pricer", amount=1_000_000, is_receive=False),
 )
 
-print(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
-print(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
+do_display(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
+do_display(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
 
 # %% [markdown]
 # ## SWAP PRICING - FOREIGN
@@ -270,8 +264,8 @@ forn_pricer = InterestRateSwapPricer(
     trade_info=TradeInfo(trade_id="AUD pricer xEUR", amount=1_000_000, is_receive=False, csa_id="AUDxEUR"),
 )
 
-print(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
-print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
+do_display(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
+do_display(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
 
 # %% [markdown]
 # ## SWAP PRICING - OFF MARKET
@@ -284,9 +278,9 @@ ois.fixed_coupon = 0.0001
 dom_pricer.reset()
 forn_pricer.reset()
 
-print(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
-print(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
-print(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
-print(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
+do_display(f"{dom_pricer.get_name()} Value: {dom_pricer.value():,.2f}$")
+do_display(f"{dom_pricer.get_name()} Par coupon: {dom_pricer.par_coupon():,.6f}")
+do_display(f"{forn_pricer.get_name()} Value: {forn_pricer.value():,.2f}$")
+do_display(f"{forn_pricer.get_name()} Par coupon: {forn_pricer.par_coupon():,.6f}")
 
 # %%
