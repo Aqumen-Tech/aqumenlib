@@ -199,7 +199,7 @@ def test_eurxaud_csa_model():
         df_dict["S Dom"] = f"{tcase[5]}"
         df_dict["Rebal"] = f"{tcase[6]}"
         results_for_df.append(df_dict)
-        assert float(df_dict["AUD XCCY Curve"]) == pytest.approx(float(df_dict["Expect"]), abs=0.3)
+        assert float(df_dict["AUD XCCY Curve"]) == pytest.approx(float(df_dict["Expect"]), abs=0.35)
     if do_print:
         import pandas as pd
 

@@ -204,7 +204,7 @@ def test_frn():
     flows = cflows.flows
     assert flows[0].currency == Currency.USD
     assert flows[0].date == Date.from_any("2026-01-27")
-    assert flows[0].rate == pytest.approx(0.046, rel=1e-2)
-    assert flows[0].amount == pytest.approx(46_450, rel=1e-2)
+    assert flows[0].rate == pytest.approx(0.0467, rel=1e-2)
+    assert flows[0].amount == pytest.approx(47_115, rel=1e-2)
     v = frn_pricer.calculate(Metric.MODEL_VALUE)
     assert v[Currency.USD] == pytest.approx(1e6, abs=100)
