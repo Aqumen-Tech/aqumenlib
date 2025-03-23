@@ -84,7 +84,6 @@ To make it easier to use this environment from command line, you could create ba
 
 ```
 @echo off
-@echo off
 call D:\aqumen\venv\Scripts\activate.bat
 set AQUMEN_CONFIG=D:\aqumen\aqm_config.toml
 cd D:\aqumen\aqumenlib\examples

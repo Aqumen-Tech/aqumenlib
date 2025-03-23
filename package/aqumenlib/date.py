@@ -156,6 +156,17 @@ class Date(BaseModel):
         return cls(internal_isoint=v)
 
     @classmethod
+    def from_str(cls, v: str) -> Self:
+        """Initializes the Date object from an ISO string"""
+        try:
+            return cls.from_py(datetime.datetime.strptime(v, "%Y-%m-%d"))
+        except ValueError as exc:
+            try:
+                return cls.from_py(datetime.datetime.strptime(v, "%Y%m%d"))
+            except ValueError:
+                raise exc from exc
+
+    @classmethod
     def from_any(cls, v: Any) -> Self:
         """
         Try to create a Date by automatically detecting input type.
@@ -172,13 +183,7 @@ class Date(BaseModel):
         elif isinstance(v, ql.Date):
             return cls.from_ql(v)
         elif isinstance(v, str):
-            try:
-                return cls.from_py(datetime.datetime.strptime(v, "%Y-%m-%d"))
-            except ValueError as exc:
-                try:
-                    return cls.from_py(datetime.datetime.strptime(v, "%Y%m%d"))
-                except ValueError:
-                    raise exc from exc
+            return cls.from_str(v)
         raise ValidationError(f"Could not convert to Date: {v}")
 
     @classmethod
